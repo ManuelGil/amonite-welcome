@@ -1,0 +1,51 @@
+# Catalogue d’interface (français). Conserver les clés ; traduire uniquement les valeurs.
+
+ui:
+  autostart_label: Afficher cette fenêtre au démarrage
+  sidebar_label: Chapitres
+  actions_label: Actions
+
+dialogs:
+  startup_failed: Bienvenue ne peut pas démarrer
+  action_unavailable: Cette action n’est pas disponible
+  unknown_action: Le guide fait référence à une action inconnue.
+  action_prepare_failed: Une erreur s’est produite en préparant cette action.
+  open_action_failed: Impossible d’ouvrir cette action
+  open_url_failed: Impossible d’ouvrir la page web
+  disallowed_url: Seuls les liens http et https peuvent être ouverts.
+  autostart_failed: Impossible de modifier le démarrage automatique
+
+facts:
+  distribution: Distribution
+  debian_version: Version Debian
+  desktop: Bureau
+  session_type: Type de session
+  architecture: Architecture
+  kernel: Noyau
+  hostname: Nom d’hôte
+  processor: Processeur
+  memory: Mémoire
+  disk_usage: Utilisation du disque
+
+capabilities:
+  package-manager:
+    unavailable: >
+      Aucun gestionnaire de paquets n’est disponible sur ce système.
+      Installez des logiciels depuis le menu des applications,
+      ou contactez votre administrateur.
+  desktop-settings:
+    unavailable: >
+      Les paramètres du bureau ne sont pas disponibles.
+      Ouvrez-les depuis le menu des applications.
+  network-settings:
+    unavailable: >
+      Les paramètres réseau ne sont pas disponibles.
+      Configurez le réseau avec les outils réseau du bureau,
+      ou contactez votre administrateur.
+  system-update:
+    unavailable: |
+      Aucun terminal n’est disponible, la commande de mise à jour
+      ne peut donc pas être lancée depuis ici.
+
+      Ouvrez un terminal depuis le menu des applications et exécutez :
+        sudo apt update && sudo apt upgrade

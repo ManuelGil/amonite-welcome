@@ -1,0 +1,120 @@
+# German handbook. Translate from pages.en.yaml.
+
+pages:
+
+  - title: Willkommen
+    icon: go-home-symbolic
+    description: >-
+      Eine Einführung in $distro_name und was Sie von diesem System erwarten können.
+    sections:
+      - heading: $slogan
+        body: >
+          $distro_name ist ein Desktop-Betriebssystem auf Basis von Debian
+          Stable. Debian Stable ändert sich langsam und stellt Pakete bereit,
+          die gemeinsam getestet wurden. Die Installation bleibt minimal,
+          damit Sie hinzufügen können, was Sie brauchen.
+      - heading: Die Desktop-Umgebung
+        requires: [desktop_env_label]
+        body: >
+          Diese Installation verwendet $desktop_env_label als
+          Desktop-Umgebung. Sie bleibt leicht zu verstehen und anzupassen und
+          ist der Teil des Systems, den Sie am häufigsten sehen und ändern.
+      - heading: Wofür dieses Handbuch gedacht ist
+        body: >
+          Dieses Fenster ist eine kurze Einführung, kein Kontrollzentrum. Es
+          erklärt, was $distro_name ist, und hilft Ihnen, die ersten
+          sinnvollen Schritte nach der Installation zu gehen. Es ersetzt weder
+          die Systemdokumentation noch die Desktop-Einstellungen noch den
+          Paketmanager. Wenn ein anderes Werkzeug eine Aufgabe bereits
+          übernimmt, verweist dieses Handbuch darauf.
+
+  - title: Erste Schritte
+    icon: task-due-symbolic
+    description: Empfohlene Schritte für die ersten Stunden nach der Installation.
+    sections:
+      - heading: Mit dem Internet verbinden
+        body: >
+          Softwareaktualisierungen, Dokumentation und zusätzliche Software
+          benötigen eine funktionierende Netzwerkverbindung. Öffnen Sie unten
+          Netzwerkverbindungen, um kabelgebundenen oder drahtlosen Zugang
+          einzurichten. Sobald Sie online sind, sind die übrigen Schritte
+          unkompliziert.
+      - heading: System aktualisieren
+        body: >
+          Eine Neuinstallation enthält möglicherweise nicht die neuesten
+          Softwareaktualisierungen. Es wird empfohlen, Aktualisierungen zu
+          installieren, bevor Sie weitere Software hinzufügen oder persönliche
+          Daten auf den Computer kopieren. Nutzen Sie unten System
+          aktualisieren, oder öffnen Sie den Paketmanager.
+      - heading: Software installieren
+        body: >
+          Das Basissystem bleibt klein, bis Sie etwas anderes entscheiden.
+          Öffnen Sie unten den Paketmanager, um die benötigten Anwendungen aus
+          vertrauenswürdigen Softwarequellen zu finden und zu installieren.
+      - heading: Dokumentation lesen
+        body: >
+          Dieses Handbuch ist nur ein Ausgangspunkt. Versionshinweise und
+          ausführlichere Anleitungen finden Sie auf der Projektwebsite.
+          Öffnen Sie unten Dokumentation, wenn Sie mehr Details brauchen.
+      - heading: Enthaltene Anwendungen entdecken
+        body: >
+          Das Anwendungsmenü listet die Programme auf, die mit dieser
+          Installation enthalten sind. Durchsuchen Sie es, um zu sehen, was
+          bereits verfügbar ist.
+    actions:
+      - label: Netzwerkverbindungen
+        description: Kabelgebundenen oder drahtlosen Netzwerkzugang einrichten.
+        command: network-settings
+      - label: System aktualisieren
+        description: Softwareaktualisierungen der Distribution installieren.
+        command: system-update
+      - label: Paketmanager
+        description: Software aus vertrauenswürdigen Softwarequellen durchsuchen und installieren.
+        command: package-manager
+      - label: Dokumentation
+        description: Versionshinweise und Anleitungen auf der Projektwebsite öffnen.
+        url: $website_url
+
+  - title: Ihr System
+    icon: preferences-system-symbolic
+    description: Informationen über diese Installation und diesen Computer.
+    sections:
+      - heading: Zu diesen Angaben
+        body: >
+          Die Werte unten beschreiben diese Installation und diesen Computer
+          so, wie sie waren, als Sie dieses Fenster geöffnet haben. Sie sind
+          nützlich beim Nachschlagen in der Dokumentation oder beim Bitten um
+          Hilfe. Sie werden nicht live aktualisiert. Öffnen Sie diese
+          Anwendung erneut, oder nutzen Sie Desktop-Einstellungen, wenn Sie
+          nach einer Änderung aktuelle Werte brauchen.
+      - heading: Diese Installation
+        data: os_facts
+      - heading: Dieser Computer
+        data: hardware_facts
+    actions:
+      - label: Desktop-Einstellungen
+        description: Desktop-Einstellungen für Anzeige, Erscheinungsbild und Sitzung öffnen.
+        command: desktop-settings
+
+  - title: Hilfe
+    icon: help-browser-symbolic
+    description: Dokumentation und Orte, an denen Sie Unterstützung erhalten.
+    sections:
+      - heading: Dokumentation
+        body: >
+          Versionshinweise, Anleitungen und Paketinformationen zu
+          $distro_name sind auf der Projektwebsite verfügbar. Beginnen Sie
+          dort, wenn dieses Handbuch nicht ausreicht.
+      - heading: Unterstützung
+        body: >
+          Fragen zu Installation, Software und Desktop können an den
+          Support-Einstieg gerichtet werden, den diese Installation
+          veröffentlicht. Öffnen Sie ihn, wenn Sie Hilfe über dieses
+          Handbuch hinaus brauchen.
+    actions:
+      - label: Dokumentation
+        description: Versionshinweise und Anleitungen auf der Projektwebsite.
+        url: $website_url
+      - label: Unterstützung
+        description: Die von dieser Installation veröffentlichte Support-Seite öffnen.
+        url: $forum_url

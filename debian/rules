@@ -1,0 +1,9 @@
+#!/usr/bin/make -f
+
+# Keep the package build on the system Meson/Ninja toolchain so a
+# user-local pip Meson cannot poison meson-private/*.dat during install.
+export PATH := /usr/bin:/bin:$(PATH)
+export PYTHONNOUSERSITE := 1
+
+%:
+	dh $@ --buildsystem=meson

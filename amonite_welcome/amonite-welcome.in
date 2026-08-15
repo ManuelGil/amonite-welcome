@@ -1,0 +1,51 @@
+#!@PYTHON@
+# amonite-welcome - Amonite Welcome, the first-run handbook for Amonite
+#
+# This program is free software: you can redistribute it and/or modify
+# it under the terms of the GNU General Public License as published by
+# the Free Software Foundation, either version 3 of the License, or
+# (at your option) any later version.
+#
+# This program is distributed in the hope that it will be useful,
+# but WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+# GNU General Public License for more details.
+#
+# You should have received a copy of the GNU General Public License
+# along with this program.  If not, see <https://www.gnu.org/licenses/>.
+
+import locale
+import os
+import signal
+import sys
+
+pkgdatadir = '@pkgdatadir@'
+project_name = '@PROJECT_NAME@'
+_extra_pythonpath = '@EXTRA_PYTHONPATH@'
+
+# Installed layout keeps the package under pkgdatadir. The uninstalled
+# development launcher sets EXTRA_PYTHONPATH to the build root instead.
+if _extra_pythonpath:
+    sys.path.insert(1, _extra_pythonpath)
+else:
+    sys.path.insert(1, pkgdatadir)
+signal.signal(signal.SIGINT, signal.SIG_DFL)
+
+try:
+    locale.setlocale(locale.LC_ALL, '')
+except locale.Error:
+    pass
+
+if __name__ == '__main__':
+    import gi
+
+    gi.require_version('Gtk', '4.0')
+
+    from gi.repository import Gio
+
+    resource = Gio.Resource.load(os.path.join(pkgdatadir, f'{project_name}.gresource'))
+    resource._register()
+
+    from amonite_welcome import main
+
+    sys.exit(main.main(pkgdatadir))

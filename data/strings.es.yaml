@@ -1,0 +1,51 @@
+# Catálogo de interfaz (español). Conservar las claves; traducir solo valores.
+
+ui:
+  autostart_label: Mostrar esta ventana al iniciar
+  sidebar_label: Capítulos
+  actions_label: Acciones
+
+dialogs:
+  startup_failed: Bienvenida no puede iniciarse
+  action_unavailable: Esta acción no está disponible
+  unknown_action: El manual hace referencia a una acción desconocida.
+  action_prepare_failed: Algo falló al preparar esta acción.
+  open_action_failed: No se pudo abrir esta acción
+  open_url_failed: No se pudo abrir la página web
+  disallowed_url: Solo se pueden abrir enlaces http y https.
+  autostart_failed: No se pudo cambiar el inicio automático
+
+facts:
+  distribution: Distribución
+  debian_version: Versión de Debian
+  desktop: Escritorio
+  session_type: Tipo de sesión
+  architecture: Arquitectura
+  kernel: Núcleo
+  hostname: Nombre del equipo
+  processor: Procesador
+  memory: Memoria
+  disk_usage: Uso del disco
+
+capabilities:
+  package-manager:
+    unavailable: >
+      No hay un gestor de paquetes disponible en este sistema.
+      Instale software desde el menú de aplicaciones,
+      o consulte a su administrador.
+  desktop-settings:
+    unavailable: >
+      La configuración del escritorio no está disponible.
+      Ábrala desde el menú de aplicaciones.
+  network-settings:
+    unavailable: >
+      La configuración de red no está disponible.
+      Configure la red con las herramientas de red del escritorio,
+      o consulte a su administrador.
+  system-update:
+    unavailable: |
+      No hay un terminal disponible, así que no se puede
+      iniciar la actualización desde aquí.
+
+      Abra un terminal desde el menú de aplicaciones y ejecute:
+        sudo apt update && sudo apt upgrade

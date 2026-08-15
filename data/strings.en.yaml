@@ -1,0 +1,54 @@
+# UI chrome, dialogs, fact labels, and capability messages.
+# Canonical English catalog. Translate values only; keep keys identical.
+#
+# Handbook prose lives in pages.<lang>.yaml - not here.
+
+ui:
+  autostart_label: Show this window on startup
+  sidebar_label: Chapters
+  actions_label: Actions
+
+dialogs:
+  startup_failed: Welcome cannot start
+  action_unavailable: This action is not available
+  unknown_action: The handbook refers to an unknown action.
+  action_prepare_failed: Something went wrong while preparing this action.
+  open_action_failed: Could not open this action
+  open_url_failed: Could not open the web page
+  disallowed_url: Only http and https links can be opened.
+  autostart_failed: Could not change the startup setting
+
+facts:
+  distribution: Distribution
+  debian_version: Debian Version
+  desktop: Desktop
+  session_type: Session Type
+  architecture: Architecture
+  kernel: Kernel
+  hostname: Hostname
+  processor: Processor
+  memory: Memory
+  disk_usage: Disk Usage
+
+capabilities:
+  package-manager:
+    unavailable: >
+      A package manager is not available on this system.
+      Install software from the applications menu,
+      or ask your administrator.
+  desktop-settings:
+    unavailable: >
+      Desktop settings are not available.
+      Open settings from your applications menu instead.
+  network-settings:
+    unavailable: >
+      Network settings are not available.
+      Configure networking from your desktop's network tools,
+      or ask your administrator.
+  system-update:
+    unavailable: |
+      A terminal is not available, so the update command cannot
+      be started from here.
+
+      Open a terminal from your applications menu and run:
+        sudo apt update && sudo apt upgrade

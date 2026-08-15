@@ -1,0 +1,40 @@
+Source: amonite-welcome
+Section: utils
+Priority: optional
+Maintainer: Manuel Gil <security@amonite.org>
+Build-Depends:
+ debhelper-compat (= 13),
+ meson (>= 0.64),
+ ninja-build,
+ pkg-config,
+ libgtk-4-dev (>= 4.10),
+ python3,
+ python3-gi,
+ python-gi-dev,
+ python3-yaml,
+ desktop-file-utils,
+Standards-Version: 4.6.2
+Homepage: https://amonite.org
+Rules-Requires-Root: no
+
+Package: amonite-welcome
+Architecture: all
+Depends:
+ ${misc:Depends},
+ python3,
+ python3-gi,
+ python3-yaml,
+ gir1.2-gtk-4.0,
+Recommends:
+ network-manager-gnome,
+ x-terminal-emulator,
+Suggests:
+ synaptic,
+ xfce4-settings,
+ xfce4-terminal,
+ gnome-control-center,
+Description: First-run handbook for the Amonite desktop
+ Amonite Welcome is a short handbook shown after installation. It introduces
+ Amonite and opens optional system capabilities (network settings, updates,
+ package manager, desktop settings) when a provider is available. The
+ application itself requires only GTK 4 and Python.

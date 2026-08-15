@@ -1,0 +1,386 @@
+{
+  "schema": 2,
+  "generated_at": "2026-08-01T21:51:14Z",
+  "display": {
+    "DISPLAY": ":0",
+    "WAYLAND_DISPLAY": "wayland-0",
+    "XDG_SESSION_TYPE": "wayland"
+  },
+  "runtime": {
+    "status": "PASS",
+    "category": "runtime",
+    "environment": {
+      "DISPLAY": ":0",
+      "WAYLAND_DISPLAY": "wayland-0",
+      "XDG_SESSION_TYPE": "wayland"
+    },
+    "startup_ms": {
+      "cold": 0.88,
+      "warm": [
+        0.74,
+        0.68
+      ],
+      "average": 0.77
+    },
+    "first_frame_ms": null,
+    "first_frame_note": "GTK construction/navigation covered by verify.py",
+    "process": {
+      "peak_rss_bytes": 159334400,
+      "peak_virtual_bytes": 2185281536,
+      "peak_memory_bytes": 2252390400,
+      "peak_shared_bytes": 12288,
+      "peak_fds": 18,
+      "peak_threads": 25600,
+      "peak_cpu_ticks": 59,
+      "children_observed": 0,
+      "lifetime_ms": 1650.63
+    },
+    "shutdown": {
+      "process_exited": true,
+      "children_survived": false
+    },
+    "verify": {
+      "status": "PASS",
+      "ok": true,
+      "returncode": 0,
+      "stdout": "ok  config.py matches meson.build\nok  identity catalogs define base + localized application fields\nok  identity loads from catalogs + os-release (22 fields)\nok  distribution identity follows /etc/os-release\nok  pages.en.yaml loads (4 pages)\nok  placeholders substituted in editorial content\nok  project authoring loads from identity.base.yaml (7 fields)\nok  a missing authoring section raises IdentityError\nok  absent desktop metadata yields empty fields, not a default\nok  os-release desktop extensions load (vendor and generic spellings)\nok  desktop drop-in overrides os-release and skips missing paths\nok  missing desktop metadata omits the section instead of failing\nok  editorial editions load (7 languages)\nok  unsupported locales fall back to English\nok  missing translation file falls back to English\nok  system locale resolves handbook + identity (18 scenarios)\nok  missing identity fields raise IdentityError\nok  load_identity rejects a YAML path\nok  empty pages list raises PagesError\nok  invalid pages structure raises PagesError\nok  unknown command id raises PagesError\nok  unknown data source raises PagesError\nok  os_facts() (7 facts)\nok  hardware_facts() (3 facts)\nok  DATA_READERS exposes only user-facing fact sources\nok  providers.yaml installed\nok  known_capabilities (4 capabilities)\nok  providers() returns configured provider lists\nok  package-manager resolves when a provider is installed\nok  system-update resolves via a terminal provider\nok  unknown capability raises ValueError\nok  capability ids are not executable names\nok  menu desktop and autostart template validate; Name= and Icon= match\nok  hicolor icons installed (8 PNG sizes + scalable SVG)\nok  gresource bundles expected assets\nok  GTK window, navigation and autostart enable/disable/re-enable\n\nAll verification checks passed.",
+      "stderr": "",
+      "duration_ms": 2437.58
+    }
+  },
+  "size": {
+    "installed_bytes": 454612,
+    "package_bytes": 228518,
+    "largest_installed_files": [
+      [
+        "package-root/usr/share/icons/hicolor/256x256/apps/amonite-welcome.png",
+        105592
+      ],
+      [
+        "package-root/usr/share/amonite-welcome/amonite-welcome.gresource",
+        36576
+      ],
+      [
+        "package-root/usr/share/doc/amonite-welcome/LICENSE",
+        35149
+      ],
+      [
+        "package-root/usr/share/icons/hicolor/scalable/apps/amonite-welcome.svg",
+        33669
+      ],
+      [
+        "package-root/usr/share/icons/hicolor/128x128/apps/amonite-welcome.png",
+        31610
+      ],
+      [
+        "package-root/usr/share/amonite-welcome/amonite_welcome/__pycache__/window.cpython-312.pyc",
+        16938
+      ],
+      [
+        "package-root/usr/share/amonite-welcome/amonite_welcome/__pycache__/identity.cpython-312.pyc",
+        13626
+      ],
+      [
+        "package-root/usr/share/amonite-welcome/amonite_welcome/identity.py",
+        12638
+      ],
+      [
+        "package-root/usr/share/amonite-welcome/amonite_welcome/__pycache__/actions.cpython-312.pyc",
+        11985
+      ],
+      [
+        "package-root/usr/share/amonite-welcome/amonite_welcome/window.py",
+        11164
+      ]
+    ],
+    "largest_resources": [
+      [
+        "data/icons/logo.png",
+        105755
+      ],
+      [
+        "data/icons/hicolor/256x256/apps/amonite-welcome.png",
+        105592
+      ],
+      [
+        "data/icons/amonite-mark.svg",
+        33669
+      ],
+      [
+        "data/icons/hicolor/scalable/apps/amonite-welcome.svg",
+        33669
+      ],
+      [
+        "data/icons/hicolor/128x128/apps/amonite-welcome.png",
+        31610
+      ],
+      [
+        "data/icons/hicolor/64x64/apps/amonite-welcome.png",
+        10099
+      ],
+      [
+        "data/icons/hicolor/48x48/apps/amonite-welcome.png",
+        6268
+      ],
+      [
+        "data/pages.fr.yaml",
+        5646
+      ],
+      [
+        "data/pages.de.yaml",
+        5592
+      ],
+      [
+        "data/pages.pt.yaml",
+        5311
+      ]
+    ],
+    "python_bytes": 139003,
+    "documentation_bytes": 35149,
+    "gresource_bytes": 36576
+  },
+  "resources": {
+    "yaml_count": 23,
+    "yaml_bytes": 52693,
+    "icon_count": 11,
+    "icon_bytes": 334960,
+    "gresource_inputs": [
+      "data/ui/window.ui",
+      "data/style.css",
+      "data/icons/amonite-mark.svg"
+    ],
+    "providers": "data/providers.yaml",
+    "identity": [
+      "identity.base.yaml",
+      "identity.de.yaml",
+      "identity.en.yaml",
+      "identity.es.yaml",
+      "identity.fr.yaml",
+      "identity.it.yaml",
+      "identity.nl.yaml",
+      "identity.pt.yaml"
+    ],
+    "handbook": [
+      "pages.de.yaml",
+      "pages.en.yaml",
+      "pages.es.yaml",
+      "pages.fr.yaml",
+      "pages.it.yaml",
+      "pages.nl.yaml",
+      "pages.pt.yaml"
+    ],
+    "strings": [
+      "strings.de.yaml",
+      "strings.en.yaml",
+      "strings.es.yaml",
+      "strings.fr.yaml",
+      "strings.it.yaml",
+      "strings.nl.yaml",
+      "strings.pt.yaml"
+    ]
+  },
+  "dependencies": {
+    "runtime": [
+      {
+        "name": "${misc:Depends}",
+        "classification": "Core",
+        "justification": "Debian package substitution."
+      },
+      {
+        "name": "python3",
+        "classification": "Core",
+        "justification": "Python application runtime."
+      },
+      {
+        "name": "python3-gi",
+        "classification": "Core",
+        "justification": "GTK4/PyGObject application UI and GResource integration."
+      },
+      {
+        "name": "python3-yaml",
+        "classification": "Core",
+        "justification": "Loads the handbook, identity, strings and provider YAML catalogs."
+      },
+      {
+        "name": "gir1.2-gtk-4.0",
+        "classification": "Core",
+        "justification": "GTK4/PyGObject application UI and GResource integration."
+      }
+    ],
+    "policy": "Every runtime dependency must be imported or required by a documented feature."
+  },
+  "imports": {
+    "modules": {
+      "amonite_welcome.__init__": [],
+      "amonite_welcome.__main__": [
+        "__future__",
+        "amonite_welcome",
+        "gi",
+        "gi.repository",
+        "os",
+        "signal",
+        "sys"
+      ],
+      "amonite_welcome.actions": [
+        "__future__",
+        "amonite_welcome",
+        "collections.abc",
+        "functools",
+        "os",
+        "pathlib",
+        "shutil",
+        "typing",
+        "yaml"
+      ],
+      "amonite_welcome.autostart": [
+        "__future__",
+        "amonite_welcome",
+        "gi.repository",
+        "pathlib"
+      ],
+      "amonite_welcome.identity": [
+        "__future__",
+        "amonite_welcome.localeutil",
+        "collections.abc",
+        "functools",
+        "pathlib",
+        "types",
+        "yaml"
+      ],
+      "amonite_welcome.localeutil": [
+        "__future__",
+        "locale",
+        "os"
+      ],
+      "amonite_welcome.main": [
+        "amonite_welcome",
+        "amonite_welcome.__main__",
+        "amonite_welcome.identity",
+        "amonite_welcome.pages",
+        "amonite_welcome.strings",
+        "amonite_welcome.window",
+        "gi",
+        "gi.repository",
+        "os",
+        "sys"
+      ],
+      "amonite_welcome.pages": [
+        "amonite_welcome",
+        "amonite_welcome.actions",
+        "amonite_welcome.identity",
+        "amonite_welcome.localeutil",
+        "collections.abc",
+        "dataclasses",
+        "os",
+        "string",
+        "yaml"
+      ],
+      "amonite_welcome.strings": [
+        "__future__",
+        "amonite_welcome.localeutil",
+        "collections.abc",
+        "os",
+        "types",
+        "yaml"
+      ],
+      "amonite_welcome.system_info": [
+        "amonite_welcome",
+        "amonite_welcome.identity",
+        "os",
+        "platform",
+        "shutil"
+      ],
+      "amonite_welcome.window": [
+        "amonite_welcome",
+        "amonite_welcome.actions",
+        "amonite_welcome.pages",
+        "amonite_welcome.system_info",
+        "collections.abc",
+        "gi.repository"
+      ]
+    },
+    "internal_edges": [
+      "amonite_welcome",
+      "amonite_welcome.__main__",
+      "amonite_welcome.actions",
+      "amonite_welcome.identity",
+      "amonite_welcome.localeutil",
+      "amonite_welcome.pages",
+      "amonite_welcome.strings",
+      "amonite_welcome.system_info",
+      "amonite_welcome.window"
+    ],
+    "import_frequency": {
+      "__future__": 6,
+      "os": 7,
+      "signal": 1,
+      "sys": 2,
+      "gi": 2,
+      "gi.repository": 4,
+      "amonite_welcome": 12,
+      "shutil": 2,
+      "collections.abc": 5,
+      "functools": 2,
+      "pathlib": 3,
+      "typing": 1,
+      "yaml": 4,
+      "types": 2,
+      "amonite_welcome.localeutil": 3,
+      "locale": 1,
+      "amonite_welcome.identity": 3,
+      "amonite_welcome.pages": 2,
+      "amonite_welcome.strings": 1,
+      "amonite_welcome.__main__": 1,
+      "amonite_welcome.window": 1,
+      "dataclasses": 1,
+      "string": 1,
+      "amonite_welcome.actions": 2,
+      "platform": 1,
+      "amonite_welcome.system_info": 1
+    },
+    "circular_imports": [],
+    "unused_imports": "classified by ruff/pyflakes when available"
+  },
+  "static": {
+    "ruff": {
+      "status": "SKIPPED",
+      "reason": "optional tool not installed"
+    },
+    "pyflakes": {
+      "status": "SKIPPED",
+      "reason": "optional tool not installed"
+    },
+    "compileall": {
+      "status": "PASS",
+      "ok": true,
+      "returncode": 0,
+      "stdout": "",
+      "stderr": "",
+      "duration_ms": 52.13
+    },
+    "meson_test": {
+      "status": "PASS",
+      "ok": true,
+      "returncode": 0,
+      "stdout": "ninja: Entering directory `/home/manuelgil/work/products/amonite/desktop/amonite-welcome/builddir'\nninja: no work to do.\n1/2 validate desktop file           OK              0.02s\n2/2 validate autostart desktop file OK              0.01s\n\nOk:                 2   \nExpected Fail:      0   \nFail:               0   \nUnexpected Pass:    0   \nSkipped:            0   \nTimeout:            0   \n\nFull log written to /home/manuelgil/work/products/amonite/desktop/amonite-welcome/builddir/meson-logs/testlog.txt",
+      "stderr": "",
+      "duration_ms": 351.13
+    },
+    "validate": {
+      "status": "PASS",
+      "ok": true,
+      "returncode": 0,
+      "stdout": "Configuration and internationalization validation\nok  found meson.build\nok  found data/meson.build\nok  found amonite_welcome/meson.build\nok  identity.base.yaml\nok  identity.en.yaml synchronized\nok  identity.es.yaml synchronized\nok  identity.pt.yaml synchronized\nok  identity.it.yaml synchronized\nok  identity.fr.yaml synchronized\nok  identity.de.yaml synchronized\nok  identity.nl.yaml synchronized\nok  build identity aligned (desktop_id=amonite-welcome, app_id=org.amonite.Welcome)\nok  project authoring declared once in identity.base.yaml (7 fields)\nok  debian packaging mirrors authoring and separates maintainer from author\nok  providers.yaml (4 capabilities)\nok  pages.en.yaml synchronized (46 fields)\nok  pages.es.yaml synchronized (46 fields)\nok  pages.pt.yaml synchronized (46 fields)\nok  pages.it.yaml synchronized (46 fields)\nok  pages.fr.yaml synchronized (46 fields)\nok  pages.de.yaml synchronized (46 fields)\nok  pages.nl.yaml synchronized (46 fields)\nok  strings.en.yaml canonical (22 strings)\nok  strings.es.yaml complete (100%, 22/22 localized)\nok  strings.pt.yaml complete (100%, 21/22 localized)\nok  strings.it.yaml complete (100%, 20/22 localized)\nok  strings.fr.yaml complete (100%, 20/22 localized)\nok  strings.de.yaml complete (100%, 19/22 localized)\nok  strings.nl.yaml complete (100%, 20/22 localized)\nok  system-update unavailable messages mirror providers.yaml command\nok  amonite-welcome.desktop validates and matches identity catalogs\nok  amonite-welcome.desktop validates and matches identity catalogs\nok  menu and autostart desktop Keywords= stay synchronized\nok  desktop prose is guarded by 'requires' in 7 section(s)\nok  no hardcoded desktop names in 36 runtime and catalog files\nok  identity catalogs declare no distribution or desktop fields\nok  no duplicated project URLs, author names, or literal URLs in 48 files\nok  no gettext PO/POT catalogs (YAML i18n model)\n\nAll 38 configuration and i18n checks passed.",
+      "stderr": "",
+      "duration_ms": 336.78
+    }
+  },
+  "assessment": {
+    "overall": "PASS",
+    "static": "PASS",
+    "runtime": "PASS",
+    "baseline_regressions": [],
+    "static_failures": [],
+    "environment_limitations": []
+  }
+}

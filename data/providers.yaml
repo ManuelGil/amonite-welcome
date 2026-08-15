@@ -1,0 +1,65 @@
+# SPDX-License-Identifier: GPL-3.0-or-later
+#
+# Capability provider registry for Amonite Welcome.
+# Handbook YAML names capabilities; this file lists who can provide them.
+# User-visible messages live in strings.<lang>.yaml - not here.
+#
+# kinds:
+#   application      - launch the first available provider binary
+#   terminal-command - run ``command`` inside the first available terminal
+#
+# Terminal argv ``style`` values are interpreted by actions.py (technical):
+#   debian-e  - terminal -e "sh -c …"
+#   gnome     - terminal -- sh -c …
+#   konsole   - terminal -e sh -c …
+#   plain     - terminal sh -c …   (default)
+
+version: 1
+
+terminal:
+  providers:
+    - id: x-terminal-emulator
+      style: debian-e
+    - id: kitty
+      style: plain
+    - id: gnome-terminal
+      style: gnome
+    - id: xfce4-terminal
+      style: debian-e
+    - id: konsole
+      style: konsole
+    - id: lxterminal
+      style: debian-e
+    - id: mate-terminal
+      style: debian-e
+    - id: alacritty
+      style: plain
+    - id: foot
+      style: plain
+    - id: wezterm
+      style: plain
+
+capabilities:
+  package-manager:
+    kind: application
+    providers:
+      - synaptic
+
+  desktop-settings:
+    kind: application
+    providers:
+      - xfce4-settings-manager
+      - gnome-control-center
+      - systemsettings
+      - mate-control-center
+      - lxqt-config
+
+  network-settings:
+    kind: application
+    providers:
+      - nm-connection-editor
+      - nm-connection-editor.real
+
+  system-update:
+    kind: terminal-command
+    command: sudo apt update && sudo apt upgrade

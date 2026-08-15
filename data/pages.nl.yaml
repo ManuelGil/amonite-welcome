@@ -1,0 +1,117 @@
+# Dutch handbook. Translate from pages.en.yaml.
+
+pages:
+
+  - title: Welkom
+    icon: go-home-symbolic
+    description: >-
+      Een introductie tot $distro_name en wat u van dit systeem kunt verwachten.
+    sections:
+      - heading: $slogan
+        body: >
+          $distro_name is een desktopbesturingssysteem gebaseerd op Debian
+          Stable. Debian Stable verandert langzaam en levert pakketten die
+          samen zijn getest. De installatie blijft minimaal, zodat u kunt
+          toevoegen wat u nodig hebt.
+      - heading: De desktopomgeving
+        requires: [desktop_env_label]
+        body: >
+          Deze installatie gebruikt $desktop_env_label als desktopomgeving.
+          Die blijft eenvoudig te begrijpen en aan te passen en is het deel
+          van het systeem dat u het vaakst ziet en wijzigt.
+      - heading: Waar dit handboek voor is
+        body: >
+          Dit venster is een korte introductie, geen bedieningspaneel. Het
+          legt uit wat $distro_name is en helpt u de eerste nuttige stappen
+          na installatie te zetten. Het vervangt de systeemdocumentatie, de
+          desktopinstellingen of de pakketbeheerder niet. Wanneer een ander
+          hulpmiddel een taak al afhandelt, verwijst dit handboek u naar dat
+          hulpmiddel.
+
+  - title: Eerste stappen
+    icon: task-due-symbolic
+    description: Aanbevolen stappen voor de eerste uren na installatie.
+    sections:
+      - heading: Verbinden met internet
+        body: >
+          Software-updates, documentatie en extra software hebben een
+          werkende netwerkverbinding nodig. Open hieronder
+          Netwerkverbindingen om bedrade of draadloze toegang in te stellen.
+          Zodra u online bent, zijn de overige stappen eenvoudig.
+      - heading: Het systeem bijwerken
+        body: >
+          Een nieuwe installatie bevat mogelijk niet de nieuwste
+          software-updates. Het wordt aanbevolen om updates te installeren
+          voordat u andere software toevoegt of persoonlijke gegevens naar de
+          computer kopieert. Gebruik hieronder Systeem bijwerken, of open de
+          pakketbeheerder.
+      - heading: Software installeren
+        body: >
+          Het basissysteem blijft klein totdat u anders beslist. Open
+          hieronder de pakketbeheerder om de toepassingen te vinden en te
+          installeren die u nodig hebt uit vertrouwde softwarebronnen.
+      - heading: De documentatie lezen
+        body: >
+          Dit handboek is slechts een startpunt. Uitgavenotities en langere
+          handleidingen staan op de projectwebsite. Open hieronder
+          Documentatie wanneer u meer detail nodig hebt.
+      - heading: Meegeleverde toepassingen ontdekken
+        body: >
+          Het toepassingenmenu toont de programma's die bij deze installatie
+          horen. Blader erdoorheen om te zien wat al beschikbaar is.
+    actions:
+      - label: Netwerkverbindingen
+        description: Bedrade of draadloze netwerktoegang configureren.
+        command: network-settings
+      - label: Systeem bijwerken
+        description: Software-updates van de distributie installeren.
+        command: system-update
+      - label: Pakketbeheerder
+        description: Software uit vertrouwde softwarebronnen doorbladeren en installeren.
+        command: package-manager
+      - label: Documentatie
+        description: Uitgavenotities en handleidingen op de projectwebsite openen.
+        url: $website_url
+
+  - title: Uw systeem
+    icon: preferences-system-symbolic
+    description: Informatie over deze installatie en deze computer.
+    sections:
+      - heading: Over deze gegevens
+        body: >
+          De waarden hieronder beschrijven deze installatie en computer zoals
+          ze waren toen u dit venster opende. Ze zijn nuttig wanneer u
+          documentatie opzoekt of om hulp vraagt. Ze worden niet live
+          bijgewerkt. Open deze toepassing opnieuw, of gebruik
+          Desktopinstellingen, als u na een wijziging actuele waarden nodig
+          hebt.
+      - heading: Deze installatie
+        data: os_facts
+      - heading: Deze computer
+        data: hardware_facts
+    actions:
+      - label: Desktopinstellingen
+        description: Desktopinstellingen openen voor beeldscherm, weergave en sessie.
+        command: desktop-settings
+
+  - title: Help
+    icon: help-browser-symbolic
+    description: Documentatie en plekken om ondersteuning te krijgen.
+    sections:
+      - heading: Documentatie
+        body: >
+          Uitgavenotities, handleidingen en pakketinformatie voor
+          $distro_name zijn beschikbaar op de projectwebsite. Begin daar
+          wanneer dit handboek niet voldoende is.
+      - heading: Ondersteuning
+        body: >
+          Vragen over installatie, software en de desktop kunt u richten
+          aan het ondersteuningspunt dat deze installatie publiceert.
+          Open het wanneer u hulp nodig hebt buiten dit handboek.
+    actions:
+      - label: Documentatie
+        description: Uitgavenotities en handleidingen op de projectwebsite.
+        url: $website_url
+      - label: Ondersteuning
+        description: De door deze installatie gepubliceerde ondersteuningspagina openen.
+        url: $forum_url

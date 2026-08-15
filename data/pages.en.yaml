@@ -1,0 +1,114 @@
+# Canonical English handbook.
+
+pages:
+
+  - title: Welcome
+    icon: go-home-symbolic
+    description: >-
+      An introduction to $distro_name and what to expect from this system.
+    sections:
+      - heading: $slogan
+        body: >
+          $distro_name is a desktop operating system based on Debian Stable.
+          Debian Stable changes slowly and provides packages that were tested
+          together. The installation stays minimal so you can add what you
+          need.
+      - heading: The desktop
+        requires: [desktop_env_label]
+        body: >
+          This installation uses $desktop_env_label as its desktop
+          environment. It stays straightforward to understand and to adjust,
+          and it is the part of the system you will see and change most often.
+      - heading: What this handbook is for
+        body: >
+          This window is a short introduction, not a control panel. It
+          explains what $distro_name is and helps you take the first useful
+          steps after installation. It does not replace system documentation,
+          desktop settings, or the package manager. When another tool already
+          handles a task, this handbook points you to that tool.
+
+  - title: First Steps
+    icon: task-due-symbolic
+    description: Recommended steps for the first hours after installation.
+    sections:
+      - heading: Connect to the Internet
+        body: >
+          Software updates, documentation, and additional software need a
+          working network connection. Open Network Connections below to
+          configure wired or wireless access. Once you are online, the rest
+          of these steps are straightforward.
+      - heading: Update the system
+        body: >
+          A new installation may not include the latest software updates.
+          It is recommended to install updates before adding other software
+          or copying personal data to the computer. Use Update the System
+          below, or open the package manager.
+      - heading: Install software
+        body: >
+          The base system stays small until you choose otherwise. Open
+          Package Manager below to find and install the applications you need
+          from trusted software sources.
+      - heading: Read the documentation
+        body: >
+          This handbook is only a starting point. Release notes and longer
+          guides are on the project website. Open Documentation below when you
+          need more detail.
+      - heading: Discover included applications
+        body: >
+          The applications menu lists the programs included with this
+          installation. Browse it to see what is already available.
+    actions:
+      - label: Network Connections
+        description: Configure wired or wireless network access.
+        command: network-settings
+      - label: Update the System
+        description: Install software updates from the distribution.
+        command: system-update
+      - label: Package Manager
+        description: Browse and install software from trusted software sources.
+        command: package-manager
+      - label: Documentation
+        description: Open release notes and guides on the project website.
+        url: $website_url
+
+  - title: Your System
+    icon: preferences-system-symbolic
+    description: Information about this installation and this computer.
+    sections:
+      - heading: About these details
+        body: >
+          The values below describe this installation and computer as they
+          were when you opened this window. They are useful when you look up
+          documentation or ask for help. They are not updated live. Reopen
+          this application, or use Desktop Settings, if you need current
+          values after a change.
+      - heading: This Installation
+        data: os_facts
+      - heading: This Computer
+        data: hardware_facts
+    actions:
+      - label: Desktop Settings
+        description: Open desktop settings for display, appearance, and session.
+        command: desktop-settings
+
+  - title: Help
+    icon: help-browser-symbolic
+    description: Documentation and places to get support.
+    sections:
+      - heading: Documentation
+        body: >
+          Release notes, guides, and package information for $distro_name are
+          available on the project website. Start there when this handbook is
+          not enough.
+      - heading: Support
+        body: >
+          Questions about installation, software, and the desktop can be
+          taken to the support entry this installation publishes. Open
+          Support below when you need help beyond this handbook.
+    actions:
+      - label: Documentation
+        description: Release notes and guides on the project website.
+        url: $website_url
+      - label: Support
+        description: Open the support page published by this installation.
+        url: $forum_url

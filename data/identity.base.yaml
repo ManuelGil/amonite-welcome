@@ -1,0 +1,25 @@
+# Language-independent application identity and project authoring.
+#
+# User-visible prose lives in identity.<lang>.yaml.
+# Distribution name, version, and URLs come from /etc/os-release at runtime.
+# Desktop-environment metadata comes from the distribution too; see
+# docs/ARCHITECTURE.md. Neither is ever declared here.
+
+schema_version: 2
+
+# Application identity: the .desktop basename this program installs.
+# Unrelated to the desktop environment the system happens to run.
+desktop_id: amonite-welcome
+
+# Project authoring: who owns this project and where it lives. This block is
+# the single canonical source. Runtime placeholders ($project_sponsor_url and
+# friends), packaging metadata, and documentation all resolve back to it, and
+# make validate fails when any copy drifts.
+authoring:
+  creator: Manuel Gil
+  maintainer: Manuel Gil
+  contact: security@amonite.org
+  website: https://amonite.org
+  repository: https://github.com/ManuelGil/amonite
+  support: https://www.reddit.com/r/amonite
+  sponsor: https://github.com/sponsors/ManuelGil

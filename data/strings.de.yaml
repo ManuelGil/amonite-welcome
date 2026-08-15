@@ -1,0 +1,51 @@
+# Oberflächenkatalog (Deutsch). Schlüssel beibehalten; nur Werte übersetzen.
+
+ui:
+  autostart_label: Dieses Fenster beim Start anzeigen
+  sidebar_label: Kapitel
+  actions_label: Aktionen
+
+dialogs:
+  startup_failed: Willkommen kann nicht starten
+  action_unavailable: Diese Aktion ist nicht verfügbar
+  unknown_action: Das Handbuch verweist auf eine unbekannte Aktion.
+  action_prepare_failed: Beim Vorbereiten dieser Aktion ist etwas schiefgelaufen.
+  open_action_failed: Diese Aktion konnte nicht geöffnet werden
+  open_url_failed: Die Webseite konnte nicht geöffnet werden
+  disallowed_url: Es können nur http- und https-Links geöffnet werden.
+  autostart_failed: Die Starteinstellung konnte nicht geändert werden
+
+facts:
+  distribution: Distribution
+  debian_version: Debian-Version
+  desktop: Desktop
+  session_type: Sitzungstyp
+  architecture: Architektur
+  kernel: Kernel
+  hostname: Rechnername
+  processor: Prozessor
+  memory: Speicher
+  disk_usage: Festplattennutzung
+
+capabilities:
+  package-manager:
+    unavailable: >
+      Auf diesem System ist kein Paketmanager verfügbar.
+      Installieren Sie Software über das Anwendungsmenü
+      oder wenden Sie sich an Ihren Administrator.
+  desktop-settings:
+    unavailable: >
+      Die Desktop-Einstellungen sind nicht verfügbar.
+      Öffnen Sie sie über das Anwendungsmenü.
+  network-settings:
+    unavailable: >
+      Die Netzwerkeinstellungen sind nicht verfügbar.
+      Richten Sie das Netzwerk mit den Netzwerkwerkzeugen des Desktops ein
+      oder wenden Sie sich an Ihren Administrator.
+  system-update:
+    unavailable: |
+      Es ist kein Terminal verfügbar, daher kann der
+      Aktualisierungsbefehl hier nicht gestartet werden.
+
+      Öffnen Sie ein Terminal über das Anwendungsmenü und führen Sie aus:
+        sudo apt update && sudo apt upgrade

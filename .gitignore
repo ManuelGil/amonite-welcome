@@ -1,0 +1,88 @@
+# --- Build trees ---
+/build/
+/builddir/
+/obj-*/
+/install/
+/package-root/
+
+# Meson internals if created outside a build directory.
+meson-private/
+meson-logs/
+
+# --- Debian packaging outputs (generated; never commit) ---
+debian/.debhelper/
+debian/amonite-welcome/
+debian/files
+debian/*.debhelper
+debian/*.debhelper.log
+debian/*.substvars
+debian/debhelper-build-stamp
+debian/tmp/
+*.buildinfo
+*.changes
+# Debian dpkg-buildpackage logs (e.g. package_1.0.0_all.build).
+# Never match Meson build files:
+*.build
+!meson.build
+!**/meson.build
+*.deb
+
+# --- Release artifacts ---
+/dist/
+
+# --- Python ---
+__pycache__/
+*.py[cod]
+*$py.class
+*.egg-info/
+.eggs/
+.venv/
+venv/
+env/
+
+# Test / coverage / linter caches
+.coverage
+htmlcov/
+.pytest_cache/
+.mypy_cache/
+.tox/
+.ruff_cache/
+
+# Generated engineering health reports; health/baseline.json is committed.
+/health/latest.json
+/health/latest.md
+
+# --- Editors / IDEs ---
+*~
+*.swp
+*.swo
+.idea/
+.vscode/
+*.code-workspace
+
+# --- OS noise ---
+.DS_Store
+Thumbs.db
+
+# --- Backups and patch rejects ---
+*.bak
+*.orig
+*.rej
+
+# --- Local secrets / environment overrides ---
+.env
+.env.*
+
+# Never commit private key material or GPG keyring noise
+*-private.asc
+*-private.key
+*.private.asc
+*.sec.asc
+*.gpg
+*.kbx
+*.kbx~
+*.pem
+secring.*
+pubring.*
+trustdb.gpg
+random_seed

@@ -1,0 +1,51 @@
+# Interfacekatalogus (Nederlands). Sleutels behouden; alleen waarden vertalen.
+
+ui:
+  autostart_label: Dit venster tonen bij het opstarten
+  sidebar_label: Hoofdstukken
+  actions_label: Acties
+
+dialogs:
+  startup_failed: Welkom kan niet starten
+  action_unavailable: Deze actie is niet beschikbaar
+  unknown_action: Het handboek verwijst naar een onbekende actie.
+  action_prepare_failed: Er ging iets mis bij het voorbereiden van deze actie.
+  open_action_failed: Deze actie kon niet worden geopend
+  open_url_failed: De webpagina kon niet worden geopend
+  disallowed_url: Alleen http- en https-koppelingen kunnen worden geopend.
+  autostart_failed: De opstartinstelling kon niet worden gewijzigd
+
+facts:
+  distribution: Distributie
+  debian_version: Debian-versie
+  desktop: Bureaublad
+  session_type: Sessietype
+  architecture: Architectuur
+  kernel: Kernel
+  hostname: Hostnaam
+  processor: Processor
+  memory: Geheugen
+  disk_usage: Schijfgebruik
+
+capabilities:
+  package-manager:
+    unavailable: >
+      Er is geen pakketbeheerder beschikbaar op dit systeem.
+      Installeer software via het toepassingenmenu,
+      of vraag het aan uw beheerder.
+  desktop-settings:
+    unavailable: >
+      Desktopinstellingen zijn niet beschikbaar.
+      Open ze via het toepassingenmenu.
+  network-settings:
+    unavailable: >
+      Netwerkinstellingen zijn niet beschikbaar.
+      Configureer het netwerk met de netwerkhulpmiddelen van het bureaublad,
+      of vraag het aan uw beheerder.
+  system-update:
+    unavailable: |
+      Er is geen terminal beschikbaar, dus de updateopdracht
+      kan hier niet worden gestart.
+
+      Open een terminal via het toepassingenmenu en voer uit:
+        sudo apt update && sudo apt upgrade

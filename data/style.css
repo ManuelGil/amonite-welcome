@@ -1,0 +1,71 @@
+/* Spacing and typography only; colors come from the GTK theme.
+ *
+ * Do not override outline / focus-ring properties here. Visible focus
+ * indicators remain theme-owned so high-contrast and accessibility themes
+ * keep their GTK defaults.
+ */
+
+.welcome-header-brand {
+  margin-left: 6px;
+}
+
+.brand-label {
+  font-weight: 600;
+  letter-spacing: 0.01em;
+}
+
+.welcome-footer {
+  padding: 12px 24px;
+}
+
+.welcome-brand-footer {
+  font-size: 0.875em;
+}
+
+/* Keep the chapter list secondary to the handbook column. */
+.navigation-sidebar row {
+  padding: 8px 12px;
+  min-height: 36px;
+}
+
+/* Fills the stack; the reading column is centered inside. */
+.page-shell {
+  padding: 12px 20px 20px;
+}
+
+.page-content {
+  padding: 20px 24px 28px;
+  /* Line length is owned by Gtk.Label max_width_chars in window.py.
+   * GTK CSS does not implement CSS max-width; do not set it here. */
+}
+
+.page-title {
+  font-size: 1.45em;
+  font-weight: 700;
+  letter-spacing: -0.015em;
+}
+
+.page-description {
+  line-height: 1.5;
+}
+
+.section-heading {
+  font-weight: 600;
+}
+
+.section-body {
+  line-height: 1.6;
+}
+
+.facts-list label {
+  margin-bottom: 2px;
+}
+
+.action-list {
+  margin-top: 4px;
+}
+
+.action-list row {
+  padding: 12px 14px;
+  min-height: 40px;
+}

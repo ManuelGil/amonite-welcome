@@ -1,0 +1,7 @@
+# Packaging and accidental local trees only.
+# Do not list builddir/ here: that is the documented Meson development tree.
+# Debian package builds use obj-*/ (dh/Meson out-of-tree).
+build/
+obj-*/
+package-root/
+install/

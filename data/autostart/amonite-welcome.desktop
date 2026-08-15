@@ -1,0 +1,33 @@
+# System XDG autostart (installed to /etc/xdg/autostart).
+# Name / GenericName / Comment match identity.<lang>.yaml.
+[Desktop Entry]
+Name=Welcome
+Name[es]=Bienvenida
+Name[pt]=Boas-vindas
+Name[it]=Benvenuto
+Name[fr]=Bienvenue
+Name[de]=Willkommen
+Name[nl]=Welkom
+GenericName=Welcome Handbook
+GenericName[es]=Manual de bienvenida
+GenericName[pt]=Manual de boas-vindas
+GenericName[it]=Manuale di benvenuto
+GenericName[fr]=Guide de bienvenue
+GenericName[de]=Willkommenshandbuch
+GenericName[nl]=Welkomsthandboek
+Comment=Get started with Amonite
+Comment[es]=Primeros pasos con Amonite
+Comment[pt]=Primeiros passos com o Amonite
+Comment[it]=Primi passi con Amonite
+Comment[fr]=Premiers pas avec Amonite
+Comment[de]=Erste Schritte mit Amonite
+Comment[nl]=Aan de slag met Amonite
+Exec=amonite-welcome
+Icon=amonite-welcome
+Terminal=false
+Type=Application
+Categories=System;
+Keywords=amonite;welcome;handbook;getting started;
+StartupNotify=true
+StartupWMClass=org.amonite.Welcome
+X-GNOME-Autostart-enabled=true

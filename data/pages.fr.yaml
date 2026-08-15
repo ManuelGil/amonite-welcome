@@ -1,0 +1,119 @@
+# French handbook. Translate from pages.en.yaml.
+
+pages:
+
+  - title: Bienvenue
+    icon: go-home-symbolic
+    description: >-
+      Une introduction à $distro_name et à ce que vous pouvez attendre de ce système.
+    sections:
+      - heading: $slogan
+        body: >
+          $distro_name est un système d'exploitation de bureau basé sur Debian
+          Stable. Debian Stable évolue lentement et fournit des paquets testés
+          ensemble. L'installation reste minimale afin que vous puissiez
+          ajouter ce dont vous avez besoin.
+      - heading: Le bureau
+        requires: [desktop_env_label]
+        body: >
+          Cette installation utilise $desktop_env_label comme environnement de
+          bureau. Il reste facile à comprendre et à ajuster, et c'est la
+          partie du système que vous verrez et modifierez le plus souvent.
+      - heading: À quoi sert ce manuel
+        body: >
+          Cette fenêtre est une courte introduction, pas un panneau de
+          configuration. Elle explique ce qu'est $distro_name et aide à
+          franchir les premières étapes utiles après l'installation. Elle ne
+          remplace pas la documentation du système, les paramètres du bureau
+          ni le gestionnaire de paquets. Lorsqu'un autre outil gère déjà une
+          tâche, ce manuel vous y renvoie.
+
+  - title: Premiers pas
+    icon: task-due-symbolic
+    description: Étapes recommandées pour les premières heures après l'installation.
+    sections:
+      - heading: Se connecter à Internet
+        body: >
+          Les mises à jour logicielles, la documentation et les logiciels
+          supplémentaires nécessitent une connexion réseau fonctionnelle.
+          Ouvrez Connexions réseau ci-dessous pour configurer l'accès filaire
+          ou sans fil. Une fois en ligne, le reste de ces étapes est simple.
+      - heading: Mettre à jour le système
+        body: >
+          Une nouvelle installation peut ne pas inclure les dernières mises à
+          jour logicielles. Il est recommandé d'installer les mises à jour
+          avant d'ajouter d'autres logiciels ou de copier des données
+          personnelles sur l'ordinateur. Utilisez Mettre à jour le système
+          ci-dessous, ou ouvrez le gestionnaire de paquets.
+      - heading: Installer des logiciels
+        body: >
+          Le système de base reste petit jusqu'à ce que vous en décidiez
+          autrement. Ouvrez le gestionnaire de paquets ci-dessous pour trouver
+          et installer les applications dont vous avez besoin à partir de
+          sources logicielles de confiance.
+      - heading: Lire la documentation
+        body: >
+          Ce manuel n'est qu'un point de départ. Les notes de version et les
+          guides plus longs sont sur le site du projet. Ouvrez Documentation
+          ci-dessous lorsque vous avez besoin de plus de détails.
+      - heading: Découvrir les applications incluses
+        body: >
+          Le menu des applications liste les programmes inclus avec cette
+          installation. Parcourez-le pour voir ce qui est déjà disponible.
+    actions:
+      - label: Connexions réseau
+        description: Configurer l'accès réseau filaire ou sans fil.
+        command: network-settings
+      - label: Mettre à jour le système
+        description: Installer les mises à jour logicielles de la distribution.
+        command: system-update
+      - label: Gestionnaire de paquets
+        description: Parcourir et installer des logiciels depuis des sources logicielles de confiance.
+        command: package-manager
+      - label: Documentation
+        description: Ouvrir les notes de version et les guides sur le site du projet.
+        url: $website_url
+
+  - title: Votre système
+    icon: preferences-system-symbolic
+    description: Informations sur cette installation et cet ordinateur.
+    sections:
+      - heading: À propos de ces détails
+        body: >
+          Les valeurs ci-dessous décrivent cette installation et cet
+          ordinateur tels qu'ils étaient lorsque vous avez ouvert cette
+          fenêtre. Elles sont utiles lorsque vous consultez la documentation
+          ou demandez de l'aide. Elles ne sont pas mises à jour en direct.
+          Rouvrez cette application, ou utilisez Paramètres du bureau, si vous
+          avez besoin de valeurs actuelles après une modification.
+      - heading: Cette installation
+        data: os_facts
+      - heading: Cet ordinateur
+        data: hardware_facts
+    actions:
+      - label: Paramètres du bureau
+        description: Ouvrir les paramètres du bureau pour l'affichage, l'apparence et la session.
+        command: desktop-settings
+
+  - title: Aide
+    icon: help-browser-symbolic
+    description: Documentation et lieux où obtenir de l'aide.
+    sections:
+      - heading: Documentation
+        body: >
+          Les notes de version, les guides et les informations sur les paquets
+          pour $distro_name sont disponibles sur le site du projet. Commencez
+          par là lorsque ce manuel ne suffit pas.
+      - heading: Assistance
+        body: >
+          Les questions sur l'installation, les logiciels et le bureau
+          peuvent être adressées au point d'assistance publié par cette
+          installation. Ouvrez-le lorsque vous avez besoin d'aide au-delà
+          de ce manuel.
+    actions:
+      - label: Documentation
+        description: Notes de version et guides sur le site du projet.
+        url: $website_url
+      - label: Assistance
+        description: Ouvrir la page d'assistance publiée par cette installation.
+        url: $forum_url

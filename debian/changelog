@@ -1,0 +1,12 @@
+amonite-welcome (1.0.0) unstable; urgency=medium
+
+  * Version 1.0.0: first public stable release of the curated upstream tree.
+  * Preserve engineering contracts established during the 0.1.0 baseline.
+
+ -- Manuel Gil <security@amonite.org>  Sat, 01 Aug 2026 22:00:00 +0000
+
+amonite-welcome (0.1.0) unstable; urgency=medium
+
+  * Initial Debian package for Amonite Linux 1.0.0-alpha.
+
+ -- Manuel Gil <security@amonite.org>  Mon, 20 Jul 2026 04:00:00 +0000
