@@ -42,12 +42,14 @@ pages:
           Una instalación nueva puede no incluir las últimas actualizaciones
           de software. Se recomienda instalar las actualizaciones antes de
           añadir otro software o copiar datos personales al equipo. Usa
-          Actualizar el sistema más abajo, o abre el gestor de paquetes.
+          Actualizar el sistema más abajo.
       - heading: Instala software
         body: >
           El sistema base se mantiene pequeño hasta que decidas lo contrario.
-          Abre el gestor de paquetes más abajo para buscar e instalar las
-          aplicaciones que necesites desde fuentes de software de confianza.
+          Las aplicaciones adicionales provienen de las mismas fuentes de
+          software de confianza que las actualizaciones y se instalan con las
+          herramientas de paquetes estándar del sistema. Abre la documentación
+          más abajo para saber cómo.
       - heading: Lee la documentación
         body: >
           Este manual es solo un punto de partida. Las notas de la versión y
@@ -64,9 +66,6 @@ pages:
       - label: Actualizar el sistema
         description: Instala actualizaciones de software de la distribución.
         command: system-update
-      - label: Gestor de paquetes
-        description: Explora e instala software desde fuentes de software de confianza.
-        command: package-manager
       - label: Documentación
         description: Abre notas de la versión y guías en el sitio del proyecto.
         url: $website_url
@@ -80,8 +79,8 @@ pages:
           Los valores siguientes describen esta instalación y este equipo tal
           como estaban al abrir esta ventana. Son útiles al consultar
           documentación o pedir ayuda. No se actualizan en tiempo real. Vuelve
-          a abrir esta aplicación, o usa Configuración del escritorio, si
-          necesitas valores actuales después de un cambio.
+          a abrir esta aplicación si necesitas valores actuales después de un
+          cambio.
       - heading: Esta instalación
         data: os_facts
       - heading: Este equipo

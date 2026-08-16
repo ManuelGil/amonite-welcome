@@ -22,8 +22,10 @@ registry. This module does not hardcode distribution applications.
 from __future__ import annotations
 
 import os
+import shlex
 import shutil
 from collections.abc import Mapping, Sequence
+from dataclasses import dataclass
 from functools import lru_cache
 from pathlib import Path
 from typing import Any
@@ -37,16 +39,61 @@ _DEFAULT_UNAVAILABLE = "This action is not available on this system."
 
 # Terminal argv construction styles referenced from providers.yaml.
 # Executable names themselves must not appear here.
+#
+# Terminals disagree on how ``-e`` is parsed and the disagreement is not
+# cosmetic: passing the wrong shape makes the terminal try to execute a program
+# whose name is the whole command line, which fails with ENOENT. Each style
+# below is a distinct, verified argv shape; providers.yaml says which terminal
+# speaks which one.
 _ARGV_STYLES = {
-    "debian-e": lambda terminal, command: [
+    # ``T -e sh -c CMD`` - the command line is one argv element per token, so
+    # the terminal can hand it to execvp() unchanged (Debian Policy 11.8.3).
+    "exec-argv": lambda terminal, command: [terminal, "-e", "sh", "-c", command],
+    # ``T -e "sh -c CMD"`` - the terminal takes a single string and re-parses it
+    # with shell quoting rules, so the command must be shell-quoted here.
+    "exec-string": lambda terminal, command: [
         terminal,
         "-e",
-        f"sh -c {command!r}",
+        f"sh -c {shlex.quote(command)}",
     ],
-    "gnome": lambda terminal, command: [terminal, "--", "sh", "-c", command],
-    "konsole": lambda terminal, command: [terminal, "-e", "sh", "-c", command],
+    # ``T -- sh -c CMD`` - everything after ``--`` is the command line.
+    "dash-dash": lambda terminal, command: [terminal, "--", "sh", "-c", command],
+    # ``T sh -c CMD`` - trailing operands are the command line.
     "plain": lambda terminal, command: [terminal, "sh", "-c", command],
+    # ``T start -- sh -c CMD`` - the terminal dispatches on a subcommand first.
+    "start-argv": lambda terminal, command: [
+        terminal,
+        "start",
+        "--",
+        "sh",
+        "-c",
+        command,
+    ],
 }
+
+# Not an argv shape: the provider is a Debian alternatives symlink, so the argv
+# shape depends on whichever terminal the administrator selected. The style is
+# taken from the resolved target instead of assumed. See _alternative_style().
+_ALTERNATIVE_STYLE = "alternative"
+
+# Style used when an alternative resolves to a terminal the registry does not
+# list. Debian Policy 11.8.3 requires x-terminal-emulator to accept a command
+# and its arguments after ``-e``, which is exactly this shape.
+_UNKNOWN_TERMINAL_STYLE = "exec-argv"
+
+# Debian ships shell/perl wrappers (``gnome-terminal.wrapper``) whose only job
+# is to provide the historical xterm ``-e`` interface: a single string.
+_WRAPPER_SUFFIXES = (".wrapper", ".real")
+
+# Graphical sessions frequently start with a PATH that omits the sbin
+# directories, while some systems keep administration programs there. Look in
+# the standard locations before declaring a capability unavailable.
+_ADMIN_DIRS = ("/usr/local/sbin", "/usr/sbin", "/sbin")
+
+# Session identity as the display managers publish it. Reported by diagnose()
+# and never consulted while resolving: which provider runs is a property of the
+# registry and of what is installed, not of the session.
+_SESSION_VARS = ("XDG_CURRENT_DESKTOP", "XDG_SESSION_DESKTOP", "XDG_SESSION_TYPE")
 
 
 class CapabilityUnavailableError(Exception):
@@ -57,15 +104,30 @@ class CapabilityUnavailableError(Exception):
         self.capability = capability
 
 
-ActionUnavailableError = CapabilityUnavailableError
-
-
 class RegistryError(Exception):
     """Raised when providers.yaml is missing or invalid."""
 
 
 def _which(executable: str) -> str | None:
-    return shutil.which(executable)
+    """Locate *executable*, including the sbin directories PATH may omit."""
+    found = shutil.which(executable)
+    if found is not None:
+        return found
+    if "/" in executable:
+        return None
+    for directory in _ADMIN_DIRS:
+        candidate = os.path.join(directory, executable)
+        if os.path.isfile(candidate) and os.access(candidate, os.X_OK):
+            return candidate
+    return None
+
+
+def _session_report() -> list[tuple[str, str]]:
+    """Return session variables for reporting. Never used to choose a provider."""
+    return [
+        (variable, os.environ.get(variable, "").strip() or "(unset)")
+        for variable in _SESSION_VARS
+    ]
 
 
 def _find_registry_path() -> Path:
@@ -194,22 +256,71 @@ def _first_on_path(candidates: Sequence[str]) -> str | None:
     return None
 
 
-def _terminal_provider() -> tuple[str, str] | None:
-    """Return (command_name, argv_style) for the first available terminal."""
+def _terminal_declarations() -> list[tuple[str, str]]:
+    """Return (provider_id, style) pairs exactly as the registry declares them."""
     terminal = _load_registry().get("terminal") or {}
     raw = terminal.get("providers", [])
     if not isinstance(raw, list):
-        return None
+        return []
+    declarations: list[tuple[str, str]] = []
     for item in raw:
         if isinstance(item, str):
-            name, style = item, "plain"
+            declarations.append((item, _UNKNOWN_TERMINAL_STYLE))
         elif isinstance(item, dict) and item.get("id"):
-            name = str(item["id"])
-            style = str(item.get("style", "plain"))
-        else:
+            declarations.append(
+                (str(item["id"]), str(item.get("style", _UNKNOWN_TERMINAL_STYLE)))
+            )
+    return declarations
+
+
+def _alternative_target(path: str) -> str | None:
+    """Return the basename an alternatives symlink finally points at."""
+    try:
+        return Path(path).resolve(strict=True).name
+    except OSError:
+        return None
+
+
+def _alternative_styles() -> Mapping[str, str]:
+    """Argv shapes for terminals that may sit behind the alternatives symlink."""
+    terminal = _load_registry().get("terminal") or {}
+    styles = terminal.get("alternative_styles") or {}
+    if not isinstance(styles, dict):
+        raise RegistryError("terminal.alternative_styles must be a mapping")
+    return {str(name): str(style) for name, style in styles.items()}
+
+
+def _alternative_style(path: str) -> str:
+    """Return the argv style of the terminal an alternatives symlink points at.
+
+    The administrator chooses the target, and the targets do not agree on how
+    ``-e`` is parsed, so the style has to follow the link instead of the name.
+    """
+    name = _alternative_target(path)
+    if name is None:
+        return _UNKNOWN_TERMINAL_STYLE
+
+    for suffix in _WRAPPER_SUFFIXES:
+        if name.endswith(suffix):
+            # A wrapper exists to provide the historical xterm ``-e``
+            # interface, whatever the terminal behind it expects.
+            return "exec-string"
+
+    for provider_id, style in _terminal_declarations():
+        if provider_id == name and style != _ALTERNATIVE_STYLE:
+            return style
+    return _alternative_styles().get(name, _UNKNOWN_TERMINAL_STYLE)
+
+
+def _terminal_provider() -> tuple[str, str] | None:
+    """Return (executable_path, argv_style) for the first available terminal."""
+    for name, style in _terminal_declarations():
+        path = _which(name)
+        if path is None:
             continue
-        if _which(name):
-            return name, style
+        if style == _ALTERNATIVE_STYLE:
+            style = _alternative_style(path)
+        return path, style
     return None
 
 
@@ -218,7 +329,9 @@ def _terminal_argv(shell_command: str) -> list[str] | None:
     if found is None:
         return None
     terminal, style = found
-    builder = _ARGV_STYLES.get(style, _ARGV_STYLES["plain"])
+    builder = _ARGV_STYLES.get(style)
+    if builder is None:
+        raise RegistryError(f"unknown terminal argv style: {style!r}")
     return builder(terminal, shell_command)
 
 
@@ -256,23 +369,56 @@ def launch(capability: str) -> list[str]:
     return resolve(capability)
 
 
-def resolve_action(action_id: str) -> list[str]:
-    """Compatibility wrapper around :func:`launch`."""
-    return launch(action_id)
+def terminal_argv(shell_command: str) -> list[str] | None:
+    """Return argv running *shell_command* in a terminal, or None if there is none.
+
+    Exposed so verification can exercise argv construction with a harmless
+    command instead of the registry's own.
+    """
+    return _terminal_argv(shell_command)
 
 
-# Thin helpers kept for readability at call sites / tests.
-def open_package_manager() -> list[str]:
-    return launch("package-manager")
+def terminal_style() -> str | None:
+    """Return the argv style chosen for the terminal this system provides."""
+    found = _terminal_provider()
+    return None if found is None else found[1]
 
 
-def open_system_update() -> list[str]:
-    return launch("system-update")
+def diagnose() -> list[tuple[str, str]]:
+    """Return (capability, resolution) pairs describing this system.
 
+    Maintenance aid: it reports what the capability registry resolves to here,
+    so an installation that shows an action as unavailable can be inspected
+    without guessing. Nothing is started.
+    """
+    report: list[tuple[str, str]] = list(_session_report())
 
-def open_desktop_settings() -> list[str]:
-    return launch("desktop-settings")
+    found = _terminal_provider()
+    if found is None:
+        report.append(("terminal", "unavailable"))
+        report.append(("terminal providers", ", ".join(providers("terminal"))))
+    else:
+        path, style = found
+        target = _alternative_target(path)
+        report.append(
+            ("terminal", path if target in (None, Path(path).name) else f"{path} -> {target}")
+        )
+        report.append(("terminal style", style))
 
-
-def open_network_settings() -> list[str]:
-    return launch("network-settings")
+    for capability in sorted(known_capabilities()):
+        try:
+            argv = resolve(capability)
+        except CapabilityUnavailableError:
+            report.append((capability, "unavailable"))
+            report.append(
+                (
+                    f"{capability} providers",
+                    ", ".join(providers(capability)) or "(none configured)",
+                )
+            )
+        except (RegistryError, ValueError) as error:
+            report.append((capability, f"error: {error}"))
+        else:
+            report.append((capability, "available"))
+            report.append((f"{capability} argv", " ".join(argv)))
+    return report

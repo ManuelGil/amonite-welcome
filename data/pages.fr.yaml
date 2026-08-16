@@ -44,13 +44,14 @@ pages:
           jour logicielles. Il est recommandé d'installer les mises à jour
           avant d'ajouter d'autres logiciels ou de copier des données
           personnelles sur l'ordinateur. Utilisez Mettre à jour le système
-          ci-dessous, ou ouvrez le gestionnaire de paquets.
+          ci-dessous.
       - heading: Installer des logiciels
         body: >
           Le système de base reste petit jusqu'à ce que vous en décidiez
-          autrement. Ouvrez le gestionnaire de paquets ci-dessous pour trouver
-          et installer les applications dont vous avez besoin à partir de
-          sources logicielles de confiance.
+          autrement. Les applications supplémentaires proviennent des mêmes
+          sources logicielles de confiance que les mises à jour et s'installent
+          avec les outils de paquets standard du système. Ouvrez la
+          documentation ci-dessous pour savoir comment.
       - heading: Lire la documentation
         body: >
           Ce manuel n'est qu'un point de départ. Les notes de version et les
@@ -67,9 +68,6 @@ pages:
       - label: Mettre à jour le système
         description: Installer les mises à jour logicielles de la distribution.
         command: system-update
-      - label: Gestionnaire de paquets
-        description: Parcourir et installer des logiciels depuis des sources logicielles de confiance.
-        command: package-manager
       - label: Documentation
         description: Ouvrir les notes de version et les guides sur le site du projet.
         url: $website_url
@@ -84,8 +82,8 @@ pages:
           ordinateur tels qu'ils étaient lorsque vous avez ouvert cette
           fenêtre. Elles sont utiles lorsque vous consultez la documentation
           ou demandez de l'aide. Elles ne sont pas mises à jour en direct.
-          Rouvrez cette application, ou utilisez Paramètres du bureau, si vous
-          avez besoin de valeurs actuelles après une modification.
+          Rouvrez cette application si vous avez besoin de valeurs actuelles
+          après une modification.
       - heading: Cette installation
         data: os_facts
       - heading: Cet ordinateur

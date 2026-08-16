@@ -16,13 +16,14 @@
 """Handbook loading, validation, and locale resolution."""
 
 import os
-from collections.abc import Mapping
+from collections.abc import Mapping, Sequence
 from dataclasses import dataclass, field
 from string import Template
 
 import yaml
 
 from amonite_welcome import system_info
+from amonite_welcome.actions import available as capability_available
 from amonite_welcome.actions import known_capabilities
 from amonite_welcome.identity import IDENTITY_FIELDS
 from amonite_welcome.localeutil import DEFAULT_LANGUAGE, editorial_language
@@ -57,6 +58,23 @@ class Page:
     description: str = ""
     sections: list[Section] = field(default_factory=list)
     actions: list[Action] = field(default_factory=list)
+
+
+def visible_actions(page_actions: Sequence[Action]) -> list[Action]:
+    """Return the actions this system can actually carry out.
+
+    An action whose capability has no provider here is left out rather than
+    offered and refused: the handbook should not point at a tool the system
+    does not have. Availability is read at presentation time, so a system the
+    user changes later is described by the state it is in when Welcome starts,
+    and activation resolves again, keeping the message for a provider that
+    disappears while the window is open.
+    """
+    visible: list[Action] = []
+    for action in page_actions:
+        if action.url or (action.command and capability_available(action.command)):
+            visible.append(action)
+    return visible
 
 
 class PagesError(Exception):

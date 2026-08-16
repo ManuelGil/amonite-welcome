@@ -22,7 +22,7 @@ from gi.repository import Gio, GLib, Gtk
 from amonite_welcome import autostart, config, system_info
 from amonite_welcome import strings as i18n
 from amonite_welcome.actions import CapabilityUnavailableError, launch
-from amonite_welcome.pages import Action, Page, Section
+from amonite_welcome.pages import Action, Page, Section, visible_actions
 from amonite_welcome.system_info import Fact
 
 # Comfortable reading measure (~60–75 characters).
@@ -41,27 +41,29 @@ _PREFERRED_WIDTH = 960
 _PREFERRED_HEIGHT = 700
 
 
+# Accessible roles are passed when a widget is constructed, never assigned
+# afterwards. ``accessible-role`` is construct-only: assigning it later does not
+# stay on the instance, and under GTK 4.14 the assignment reaches every widget
+# of that class, so the last role set would silently become the role of every
+# heading, paragraph and decorative node in the window. Constructing with the
+# role keeps each one where it belongs, and the roles below are the vocabulary
+# this window uses.
+#
+# Prose uses LABEL rather than PARAGRAPH: GTK 4.14 + AT-SPI keeps the visible
+# string as the accessible name for LABEL, while PARAGRAPH nodes were nameless.
+_HEADING = Gtk.AccessibleRole.HEADING
+_PARAGRAPH = Gtk.AccessibleRole.LABEL
+_DECORATIVE = Gtk.AccessibleRole.PRESENTATION
+
+
 def _set_accessible_label(widget: Gtk.Widget, label: str) -> None:
     """Expose a human-readable accessible name via GTK."""
     widget.update_property([Gtk.AccessibleProperty.LABEL], [label])
 
 
-def _set_heading(widget: Gtk.Widget, level: int) -> None:
-    """Mark a label as a heading for assistive technologies."""
-    widget.set_accessible_role(Gtk.AccessibleRole.HEADING)
+def _set_heading_level(widget: Gtk.Widget, level: int) -> None:
+    """Give a heading its depth. The role itself comes from construction."""
     widget.update_property([Gtk.AccessibleProperty.LEVEL], [level])
-
-
-def _set_paragraph(widget: Gtk.Widget) -> None:
-    """Expose prose as a labelled paragraph, not a heading."""
-    # Prefer LABEL over PARAGRAPH: GTK 4.14+AT-SPI keeps the visible
-    # string as the accessible name for LABEL; PARAGRAPH nodes were nameless.
-    widget.set_accessible_role(Gtk.AccessibleRole.LABEL)
-
-
-def _mark_decorative(widget: Gtk.Widget) -> None:
-    """Hide decorative imagery from the accessibility tree."""
-    widget.set_accessible_role(Gtk.AccessibleRole.PRESENTATION)
 
 
 @Gtk.Template(resource_path=f"{config.RESOURCE_BASE_PATH}/ui/window.ui")
@@ -126,9 +128,8 @@ class WelcomeWindow(Gtk.ApplicationWindow):
         brand.add_css_class("welcome-header-brand")
 
         # Application identity icon from the Freedesktop hicolor theme (PNG).
-        logo = Gtk.Image(icon_name=config.PROJECT_NAME)
+        logo = Gtk.Image(icon_name=config.PROJECT_NAME, accessible_role=_DECORATIVE)
         logo.set_pixel_size(24)
-        _mark_decorative(logo)
         brand.append(logo)
 
         distro = Gtk.Label(label=identity["distro_name"], xalign=0)
@@ -160,12 +161,12 @@ class WelcomeWindow(Gtk.ApplicationWindow):
 
     def _build_sidebar_row(self, page: Page) -> Gtk.ListBoxRow:
         box = Gtk.Box(spacing=10)
-        icon = Gtk.Image(icon_name=page.icon)
+        icon = Gtk.Image(icon_name=page.icon, accessible_role=_DECORATIVE)
         icon.set_pixel_size(16)
-        _mark_decorative(icon)
         box.append(icon)
-        title = Gtk.Label(label=page.title, xalign=0, wrap=True, hexpand=True)
-        title.set_accessible_role(Gtk.AccessibleRole.LABEL)
+        title = Gtk.Label(
+            label=page.title, xalign=0, wrap=True, hexpand=True, accessible_role=_PARAGRAPH
+        )
         box.append(title)
 
         row = Gtk.ListBoxRow(child=box)
@@ -189,9 +190,7 @@ class WelcomeWindow(Gtk.ApplicationWindow):
                 content.append(widget)
 
         action_rows = [
-            self._build_action_row(action)
-            for action in page.actions
-            if action.command or action.url
+            self._build_action_row(action) for action in visible_actions(page.actions)
         ]
         if action_rows:
             actions = Gtk.ListBox(selection_mode=Gtk.SelectionMode.NONE)
@@ -219,18 +218,21 @@ class WelcomeWindow(Gtk.ApplicationWindow):
     def _build_page_header(self, page: Page) -> Gtk.Widget:
         header = Gtk.Box(orientation=Gtk.Orientation.VERTICAL, spacing=8)
 
-        title = Gtk.Label(label=page.title, xalign=0)
+        title = Gtk.Label(label=page.title, xalign=0, accessible_role=_HEADING)
         title.add_css_class("page-title")
-        _set_heading(title, 1)
+        _set_heading_level(title, 1)
         header.append(title)
 
         if page.description:
             description = Gtk.Label(
-                label=page.description, xalign=0, wrap=True, max_width_chars=_PROSE_WIDTH_CHARS
+                label=page.description,
+                xalign=0,
+                wrap=True,
+                max_width_chars=_PROSE_WIDTH_CHARS,
+                accessible_role=_PARAGRAPH,
             )
             description.add_css_class("page-description")
             description.add_css_class("dim-label")
-            _set_paragraph(description)
             header.append(description)
 
         return header
@@ -243,17 +245,24 @@ class WelcomeWindow(Gtk.ApplicationWindow):
         box = Gtk.Box(orientation=Gtk.Orientation.VERTICAL, spacing=8)
 
         heading = Gtk.Label(
-            label=section.heading, xalign=0, wrap=True, max_width_chars=_PROSE_WIDTH_CHARS
+            label=section.heading,
+            xalign=0,
+            wrap=True,
+            max_width_chars=_PROSE_WIDTH_CHARS,
+            accessible_role=_HEADING,
         )
         heading.add_css_class("section-heading")
-        _set_heading(heading, 2)
+        _set_heading_level(heading, 2)
         box.append(heading)
 
         body = Gtk.Label(
-            label=section.body, xalign=0, wrap=True, max_width_chars=_PROSE_WIDTH_CHARS
+            label=section.body,
+            xalign=0,
+            wrap=True,
+            max_width_chars=_PROSE_WIDTH_CHARS,
+            accessible_role=_PARAGRAPH,
         )
         body.add_css_class("section-body")
-        _set_paragraph(body)
         box.append(body)
 
         return box
@@ -261,23 +270,26 @@ class WelcomeWindow(Gtk.ApplicationWindow):
     def _build_facts(self, heading: str, facts: list[Fact]) -> Gtk.Widget:
         box = Gtk.Box(orientation=Gtk.Orientation.VERTICAL, spacing=8)
 
-        heading_label = Gtk.Label(label=heading, xalign=0)
+        heading_label = Gtk.Label(label=heading, xalign=0, accessible_role=_HEADING)
         heading_label.add_css_class("section-heading")
-        _set_heading(heading_label, 2)
+        _set_heading_level(heading_label, 2)
         box.append(heading_label)
 
         grid = Gtk.Grid(column_spacing=28, row_spacing=8)
         grid.add_css_class("facts-list")
         for row, (label, value) in enumerate(facts):
-            label_widget = Gtk.Label(label=label, xalign=0)
+            label_widget = Gtk.Label(label=label, xalign=0, accessible_role=_DECORATIVE)
             label_widget.add_css_class("dim-label")
             # Visual key only; the value carries the paired accessible name.
             # PyGObject's LABELLED_BY relation currently warns under GTK 4.14.
-            _mark_decorative(label_widget)
             grid.attach(label_widget, 0, row, 1, 1)
 
             value_widget = Gtk.Label(
-                label=value, xalign=0, wrap=True, max_width_chars=_PROSE_WIDTH_CHARS
+                label=value,
+                xalign=0,
+                wrap=True,
+                max_width_chars=_PROSE_WIDTH_CHARS,
+                accessible_role=_PARAGRAPH,
             )
             _set_accessible_label(value_widget, f"{label}: {value}")
             grid.attach(value_widget, 1, row, 1, 1)
@@ -287,15 +299,17 @@ class WelcomeWindow(Gtk.ApplicationWindow):
 
     def _build_action_row(self, action: Action) -> Gtk.ListBoxRow:
         labels = Gtk.Box(orientation=Gtk.Orientation.VERTICAL, spacing=2, hexpand=True)
-        title = Gtk.Label(label=action.label, xalign=0)
-        title.set_accessible_role(Gtk.AccessibleRole.LABEL)
+        title = Gtk.Label(label=action.label, xalign=0, accessible_role=_PARAGRAPH)
         labels.append(title)
         if action.description:
             description = Gtk.Label(
-                label=action.description, xalign=0, wrap=True, max_width_chars=_PROSE_WIDTH_CHARS
+                label=action.description,
+                xalign=0,
+                wrap=True,
+                max_width_chars=_PROSE_WIDTH_CHARS,
+                accessible_role=_PARAGRAPH,
             )
             description.add_css_class("dim-label")
-            _set_paragraph(description)
             labels.append(description)
 
         row = Gtk.ListBoxRow(child=labels)

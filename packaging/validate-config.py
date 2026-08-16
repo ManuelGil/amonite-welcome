@@ -12,6 +12,7 @@ check fails.
 from __future__ import annotations
 
 import re
+import shlex
 import sys
 from collections.abc import Mapping
 from pathlib import Path
@@ -234,7 +235,208 @@ def validate_providers() -> None:
             fail(f"providers.yaml: capability {name!r} needs command")
         if kind == "application" and not entry.get("providers"):
             fail(f"providers.yaml: capability {name!r} needs providers")
+        for provider in entry.get("providers") or []:
+            # Providers are plain executable names. A mapping would suggest a
+            # condition the resolver does not evaluate: which provider runs is
+            # decided by the registry order and by what is installed, never by
+            # the session (Welcome stays desktop-independent).
+            if not isinstance(provider, str) or not provider or "/" in provider:
+                fail(
+                    f"providers.yaml: capability {name!r} provider {provider!r} "
+                    "must be a plain executable name"
+                )
     ok(f"providers.yaml ({len(caps)} capabilities)")
+
+
+# Terminal argv shapes, each confirmed by running the terminal and checking
+# that the command really executed. They are pinned here because getting one
+# wrong is silent at build time and fatal at runtime: the terminal tries to
+# execute the whole command line as a program name and reports
+# "no such file or directory" to the user instead of updating the system.
+#
+# ``alternative`` is not a shape. x-terminal-emulator is an alternatives
+# symlink whose target the administrator chooses, so its shape has to be read
+# from that target at runtime; pinning any fixed shape for it is a bug.
+VERIFIED_TERMINAL_STYLES = {
+    "x-terminal-emulator": "alternative",
+    "kitty": "plain",
+    "foot": "plain",
+    "gnome-terminal": "dash-dash",
+    "xfce4-terminal": "exec-string",
+    "konsole": "exec-argv",
+    "lxterminal": "exec-string",
+    "mate-terminal": "exec-string",
+    "alacritty": "exec-argv",
+    "wezterm": "start-argv",
+    "xterm": "exec-argv",
+}
+
+# Providers accepted for each capability, with the reason each one is accepted.
+#
+# This is a contract, not an inventory: it records which programs Welcome may
+# use when they are present, so a distribution that changes what it installs
+# does not need a change here, while a program nobody chose cannot slip in.
+# Resolution is deliberately desktop-independent, so this record is what keeps
+# another desktop's tool from being selected merely because someone installed
+# its package. Adding an entry is a decision that belongs next to its reason.
+RECORDED_PROVIDERS = {
+    "desktop-settings": {
+        "xfce4-settings-manager": "settings program of the desktop environment editions install",
+    },
+    "network-settings": {
+        "nm-connection-editor": "connection editor shipped with the network applet",
+    },
+}
+
+_PROBE_COMMAND = "printf ok && printf 'done'"
+
+
+def validate_capability_providers() -> None:
+    """Every provider a capability names is one the project accepted, with a reason."""
+    raw = _load_yaml(DATA / "providers.yaml")
+    if not isinstance(raw, dict):
+        return
+    caps = raw.get("capabilities")
+    if not isinstance(caps, dict):
+        return
+
+    before = len(ERRORS)
+    declared_total = 0
+    for name, entry in caps.items():
+        if not isinstance(entry, dict):
+            continue
+        if entry.get("kind", "application") != "application":
+            continue
+        recorded = RECORDED_PROVIDERS.get(name)
+        if recorded is None:
+            fail(
+                f"providers.yaml: capability {name!r} is not recorded in "
+                "RECORDED_PROVIDERS; record the providers it may use and why, "
+                "or drop the capability"
+            )
+            continue
+        declared = list(entry.get("providers") or [])
+        declared_total += len(declared)
+        for provider in declared:
+            if provider not in recorded:
+                fail(
+                    f"providers.yaml: capability {name!r} names provider "
+                    f"{provider!r}, which is not recorded as accepted; add it to "
+                    "RECORDED_PROVIDERS with the reason it belongs, or remove it"
+                )
+        if not declared:
+            fail(f"providers.yaml: capability {name!r} declares no provider")
+
+    for name in sorted(set(RECORDED_PROVIDERS) - set(caps)):
+        fail(f"providers.yaml: capability {name!r} was recorded but is gone")
+
+    if len(ERRORS) == before:
+        ok(
+            f"capability providers are recorded decisions "
+            f"({declared_total} declared, {sum(len(v) for v in RECORDED_PROVIDERS.values())} accepted)"
+        )
+
+
+def validate_terminal_styles() -> None:
+    """Every declared terminal keeps the argv shape that was verified for it."""
+    from amonite_welcome import actions
+
+    raw = _load_yaml(DATA / "providers.yaml")
+    if not isinstance(raw, dict):
+        return
+    terminal = raw.get("terminal") or {}
+    declared = terminal.get("providers") or []
+    if not isinstance(declared, list):
+        fail("providers.yaml: terminal.providers must be a list")
+        return
+    alternatives = terminal.get("alternative_styles") or {}
+    if not isinstance(alternatives, dict):
+        fail("providers.yaml: terminal.alternative_styles must be a mapping")
+        return
+
+    before = len(ERRORS)
+    checked: dict[str, str] = {}
+
+    for item in declared:
+        if not isinstance(item, dict) or not item.get("id") or not item.get("style"):
+            fail(f"providers.yaml: terminal provider {item!r} must declare id and style")
+            continue
+        checked[str(item["id"])] = str(item["style"])
+
+    for name, style in alternatives.items():
+        name, style = str(name), str(style)
+        if style == "alternative":
+            fail(
+                f"providers.yaml: alternative_styles[{name!r}] cannot be "
+                "'alternative'; that would resolve to itself"
+            )
+        if name in checked and checked[name] != style:
+            fail(
+                f"providers.yaml: terminal {name!r} declares style "
+                f"{checked[name]!r} but alternative_styles says {style!r}"
+            )
+        checked.setdefault(name, style)
+
+    for name, style in sorted(checked.items()):
+        expected = VERIFIED_TERMINAL_STYLES.get(name)
+        if expected is None:
+            fail(
+                f"providers.yaml: terminal {name!r} has no verified argv shape; "
+                "run the terminal with the intended shape, then record it in "
+                "VERIFIED_TERMINAL_STYLES"
+            )
+        elif style != expected:
+            fail(
+                f"providers.yaml: terminal {name!r} declares style {style!r}, "
+                f"but {expected!r} is the shape verified against that terminal"
+            )
+        if style != "alternative" and style not in actions._ARGV_STYLES:
+            fail(f"providers.yaml: terminal {name!r} uses unimplemented style {style!r}")
+
+    for name in sorted(set(VERIFIED_TERMINAL_STYLES) - set(checked)):
+        fail(f"providers.yaml: terminal {name!r} was verified but is no longer declared")
+
+    if len(ERRORS) == before:
+        ok(f"terminal argv shapes match the verified table ({len(checked)} terminals)")
+
+
+def validate_terminal_argv_shapes() -> None:
+    """Each argv shape stays executable: tokens separate, strings shell-quoted."""
+    from amonite_welcome import actions
+
+    before = len(ERRORS)
+    for style, builder in sorted(actions._ARGV_STYLES.items()):
+        argv = builder("terminal", _PROBE_COMMAND)
+        if argv[0] != "terminal":
+            fail(f"argv style {style!r} must launch the terminal first: {argv}")
+            continue
+        blobs = [part for part in argv[1:] if "sh -c" in part]
+        if style == "exec-string":
+            # One string the terminal re-parses: it has to survive shell
+            # quoting rules, or the command line is torn apart on spaces.
+            if len(blobs) != 1 or blobs[0] != argv[-1]:
+                fail(f"argv style {style!r} must pass one trailing command string: {argv}")
+                continue
+            try:
+                parsed = shlex.split(blobs[0])
+            except ValueError as error:
+                fail(f"argv style {style!r} produces unparsable quoting: {error}")
+                continue
+            if parsed != ["sh", "-c", _PROBE_COMMAND]:
+                fail(f"argv style {style!r} does not re-parse to the command: {parsed}")
+        else:
+            # Everything else is handed to execvp() as it stands, so the
+            # program name must be a program name and nothing else.
+            if blobs:
+                fail(
+                    f"argv style {style!r} passes a command line where a program "
+                    f"name is expected: {argv}"
+                )
+                continue
+            if argv[-3:] != ["sh", "-c", _PROBE_COMMAND]:
+                fail(f"argv style {style!r} must end in sh -c <command>: {argv}")
+    if len(ERRORS) == before:
+        ok(f"terminal argv shapes stay executable ({len(actions._ARGV_STYLES)} shapes)")
 
 
 def _handbook_texts(doc: Mapping) -> list[tuple[str, str]]:
@@ -672,6 +874,18 @@ def _meson_project_name() -> str | None:
     return match.group(1) if match else None
 
 
+def _meson_version() -> str | None:
+    meson = (ROOT / "meson.build").read_text(encoding="utf-8")
+    match = re.search(r"version:\s*'([^']+)'", meson)
+    return match.group(1) if match else None
+
+
+def _changelog_version() -> str | None:
+    changelog = (ROOT / "debian" / "changelog").read_text(encoding="utf-8")
+    match = re.match(r"\S+ \(([^)]+)\)", changelog)
+    return match.group(1) if match else None
+
+
 def validate_build_identity() -> None:
     """desktop_id, binary name, and APP_ID each have one owner and stay aligned."""
     base = _load_yaml(DATA / "identity.base.yaml")
@@ -693,10 +907,23 @@ def validate_build_identity() -> None:
             f"desktop_id {desktop_id!r} must equal meson project name "
             f"{project_name!r} (single basename owner)"
         )
+    # The launcher prints meson's version through config.py, and the package
+    # carries the changelog's. One release cannot claim two versions.
+    meson_version = _meson_version()
+    changelog_version = _changelog_version()
+    if not meson_version:
+        fail("meson.build: project() version not found")
+    if not changelog_version:
+        fail("debian/changelog: version not found")
+    if meson_version and changelog_version and meson_version != changelog_version:
+        fail(
+            f"version mismatch: meson.build {meson_version!r} vs "
+            f"debian/changelog {changelog_version!r}"
+        )
     if len(ERRORS) == before:
         ok(
             f"build identity aligned "
-            f"(desktop_id={desktop_id}, app_id={app_id})"
+            f"(desktop_id={desktop_id}, app_id={app_id}, version={meson_version})"
         )
 
 
@@ -955,6 +1182,9 @@ def main() -> int:
     validate_authoring()
     validate_packaging_authoring()
     validate_providers()
+    validate_capability_providers()
+    validate_terminal_styles()
+    validate_terminal_argv_shapes()
     validate_handbook()
     validate_strings()
     validate_system_update_message()

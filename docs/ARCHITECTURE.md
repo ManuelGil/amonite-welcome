@@ -122,9 +122,16 @@ Keyboard and assistive technology support rely on GTK defaults:
 - Focus order follows the visual layout: sidebar → page actions → footer checkbox.
 - Accessible names use `Gtk.AccessibleProperty.LABEL`; headings use
   `AccessibleRole.HEADING`; decorative images use `AccessibleRole.PRESENTATION`.
+- Roles are passed when a widget is constructed (`accessible_role=`), never
+  assigned afterwards. `accessible-role` is construct-only, and under GTK 4.14
+  a later assignment reaches every widget of that class, so the last role set
+  becomes the role of every heading, paragraph and decorative node. `verify`
+  reads the roles back from the built window for this reason.
 - Fact values expose a paired accessible name (`Label: value`); action rows
   expose descriptions. Prose uses an explicit non-heading accessible role so
   body text is not announced as a heading.
+- An action with no provider is not built at all, so hiding it leaves no empty
+  list, no gap in the focus order and nothing for a screen reader to announce.
 - Custom CSS must not override theme focus outlines.
 - Errors use `Gtk.AlertDialog` (no custom dialog keyboard handling).
 

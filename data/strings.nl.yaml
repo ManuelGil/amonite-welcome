@@ -28,11 +28,6 @@ facts:
   disk_usage: Schijfgebruik
 
 capabilities:
-  package-manager:
-    unavailable: >
-      Er is geen pakketbeheerder beschikbaar op dit systeem.
-      Installeer software via het toepassingenmenu,
-      of vraag het aan uw beheerder.
   desktop-settings:
     unavailable: >
       Desktopinstellingen zijn niet beschikbaar.

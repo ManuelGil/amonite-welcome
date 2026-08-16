@@ -42,12 +42,13 @@ pages:
           A new installation may not include the latest software updates.
           It is recommended to install updates before adding other software
           or copying personal data to the computer. Use Update the System
-          below, or open the package manager.
+          below.
       - heading: Install software
         body: >
-          The base system stays small until you choose otherwise. Open
-          Package Manager below to find and install the applications you need
-          from trusted software sources.
+          The base system stays small until you choose otherwise. Additional
+          applications come from the same trusted software sources as the
+          updates, and are installed with the standard package tools of the
+          system. Open Documentation below to see how.
       - heading: Read the documentation
         body: >
           This handbook is only a starting point. Release notes and longer
@@ -64,9 +65,6 @@ pages:
       - label: Update the System
         description: Install software updates from the distribution.
         command: system-update
-      - label: Package Manager
-        description: Browse and install software from trusted software sources.
-        command: package-manager
       - label: Documentation
         description: Open release notes and guides on the project website.
         url: $website_url
@@ -80,8 +78,7 @@ pages:
           The values below describe this installation and computer as they
           were when you opened this window. They are useful when you look up
           documentation or ask for help. They are not updated live. Reopen
-          this application, or use Desktop Settings, if you need current
-          values after a change.
+          this application if you need current values after a change.
       - heading: This Installation
         data: os_facts
       - heading: This Computer

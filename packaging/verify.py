@@ -187,7 +187,14 @@ def verify_config() -> None:
         fail(f"RESOURCE_BASE_PATH mismatch: {config.RESOURCE_BASE_PATH}")
     if config.PROJECT_NAME != "amonite-welcome":
         fail(f"PROJECT_NAME mismatch: {config.PROJECT_NAME}")
-    ok("config.py matches meson.build")
+    meson_version = ""
+    for line in (ROOT / "meson.build").read_text(encoding="utf-8").splitlines():
+        if line.strip().startswith("version:"):
+            meson_version = line.split("'")[1]
+            break
+    if config.VERSION != meson_version:
+        fail(f"config.py VERSION {config.VERSION!r} does not match meson.build {meson_version!r}")
+    ok(f"config.py matches meson.build (version {config.VERSION})")
 
 
 def verify_identity_and_pages() -> tuple[dict[str, str], list]:
@@ -714,12 +721,8 @@ def verify_capability_resolution() -> None:
 
     from amonite_welcome import strings as i18n
     from amonite_welcome.actions import (
-        CapabilityUnavailableError,
-        available,
         known_capabilities,
         launch,
-        open_package_manager,
-        open_system_update,
         providers,
         reload_registry,
     )
@@ -733,7 +736,6 @@ def verify_capability_resolution() -> None:
     ok("providers.yaml installed")
 
     expected = {
-        "package-manager",
         "system-update",
         "desktop-settings",
         "network-settings",
@@ -743,43 +745,16 @@ def verify_capability_resolution() -> None:
         fail(f"known_capabilities mismatch: {caps!r}")
     ok(f"known_capabilities ({len(caps)} capabilities)")
 
-    if not providers("package-manager"):
-        fail("package-manager has no configured providers")
+    if not providers("desktop-settings"):
+        fail("desktop-settings has no configured providers")
     if not providers("terminal"):
         fail("terminal has no configured providers")
     ok("providers() returns configured provider lists")
 
-    # Package manager: optional; absence must be graceful without naming providers.
-    try:
-        argv = open_package_manager()
-    except CapabilityUnavailableError as error:
-        detail = str(error).lower()
-        for leak in ("synaptic", "kitty", "xfce", "gnome-", "/usr/"):
-            if leak in detail:
-                fail(f"package-manager error leaks provider detail: {error}")
-        if available("package-manager"):
-            fail("available(package-manager) should be False when unresolved")
-        ok("package-manager absence raises CapabilityUnavailableError")
-    else:
-        if not argv:
-            fail(f"unexpected package-manager argv: {argv}")
-        if not available("package-manager"):
-            fail("available(package-manager) should be True when resolved")
-        ok("package-manager resolves when a provider is installed")
-
-    # System update needs a terminal provider.
-    try:
-        argv = open_system_update()
-    except CapabilityUnavailableError as error:
-        detail = str(error).lower()
-        for leak in ("kitty", "xfce4-terminal", "gnome-terminal", "x-terminal-emulator"):
-            if leak in detail:
-                fail(f"system-update error leaks provider detail: {error}")
-        ok("system-update absence raises CapabilityUnavailableError")
-    else:
-        if not argv:
-            fail("system-update returned empty argv")
-        ok("system-update resolves via a terminal provider")
+    # Whether these resolve on this machine, and how they degrade, is
+    # covered deterministically by verify_capability_failure_modes(),
+    # verify_action_visibility() and verify_capability_launchability(),
+    # which control PATH instead of depending on what happens to be here.
 
     try:
         launch("not-a-real-capability")
@@ -792,6 +767,416 @@ def verify_capability_resolution() -> None:
         if bad in caps:
             fail(f"capability id must not be an executable name: {bad}")
     ok("capability ids are not executable names")
+
+
+# Terminals as they actually behave, reduced to the part that decides whether
+# an action runs or fails: how each one turns its own arguments into a program
+# to execute. A stub per argv shape lets the whole chain (registry -> style ->
+# argv -> exec) be exercised without a display and without opening a terminal.
+#
+# The behaviour encoded here was observed by running the real terminals:
+# programs that execvp() their operands (alacritty, konsole, xterm) cannot be
+# handed a whole command line as one argument, while terminals that re-parse a
+# single string (xfce4-terminal, lxterminal) reject extra operands. Shipping
+# the wrong shape produced "Failed to launch 'sh -c ...': No such file or
+# directory" on installed systems.
+_TERMINAL_STUBS = {
+    "exec-argv": (
+        '[ "$1" = "-e" ] || { echo "stub: -e expected, got $1" >&2; exit 2; }\n'
+        "shift\n"
+        'exec "$@"\n'
+    ),
+    "exec-string": (
+        '[ "$1" = "-e" ] || { echo "stub: -e expected, got $1" >&2; exit 2; }\n'
+        '[ $# -eq 2 ] || { echo "stub: -e takes one string, got $#" >&2; exit 2; }\n'
+        'exec sh -c "$2"\n'
+    ),
+    "dash-dash": (
+        '[ "$1" = "--" ] || { echo "stub: -- expected, got $1" >&2; exit 2; }\n'
+        "shift\n"
+        'exec "$@"\n'
+    ),
+    "plain": 'exec "$@"\n',
+    "start-argv": (
+        '[ "$1" = "start" ] && [ "$2" = "--" ] || { echo "stub: start -- expected" >&2; exit 2; }\n'
+        "shift 2\n"
+        'exec "$@"\n'
+    ),
+}
+
+# The PATH a graphical session commonly starts with on Debian: no sbin
+# directories, where some administration programs live.
+_SESSION_PATH = "/usr/local/bin:/usr/bin:/bin:/usr/local/games:/usr/games"
+
+# The alternatives symlink an administrator's terminal choice is reached
+# through. Taken from the registry so the stub matches what ships.
+_ALTERNATIVE_LINK = "x-terminal-emulator"
+
+
+def _write_stub(directory: Path, name: str, body: str) -> Path:
+    stub = directory / name
+    stub.write_text(f"#!/bin/sh\n{body}", encoding="utf-8")
+    stub.chmod(0o755)
+    return stub
+
+
+def _terminal_style_probes() -> list[tuple[str, str, bool]]:
+    """Return (style, terminal, reached_through_alternative) for every shape.
+
+    A shape is exercised through the terminal that declares it: directly when
+    the registry lists that terminal as a provider, otherwise through the
+    alternatives symlink, which is the only way such a terminal is ever
+    selected.
+    """
+    from amonite_welcome import actions
+
+    declared = dict(actions._terminal_declarations())
+    probes: list[tuple[str, str, bool]] = []
+    for style in sorted(actions._ARGV_STYLES):
+        direct = next((name for name, s in declared.items() if s == style), None)
+        if direct is not None:
+            probes.append((style, direct, False))
+            continue
+        through = next(
+            (name for name, s in actions._alternative_styles().items() if s == style),
+            None,
+        )
+        if through is None:
+            fail(f"no terminal declares argv style {style!r}")
+            continue
+        probes.append((style, through, True))
+    return probes
+
+
+def _run_terminal_probe(
+    bindir: Path, marker: Path, terminal: str, body: str, alternative: str | None
+) -> tuple[list[str] | None, str | None, str]:
+    """Install a stub terminal, resolve argv against it, and run that argv."""
+    from amonite_welcome import actions
+
+    original_path = os.environ.get("PATH", "")
+    _write_stub(bindir, terminal, body)
+    if alternative is not None:
+        (bindir / alternative).symlink_to(bindir / terminal)
+    os.environ["PATH"] = str(bindir)
+    stderr = ""
+    try:
+        argv = actions.terminal_argv(f"printf ok > {marker}")
+        style = actions.terminal_style()
+        if argv is not None:
+            # Resolution ran with only the stub on PATH; execution needs a
+            # normal PATH so the stub can reach the shell it starts.
+            result = subprocess.run(
+                argv,
+                capture_output=True,
+                text=True,
+                timeout=30,
+                env={**os.environ, "PATH": f"{bindir}:{_SESSION_PATH}"},
+            )
+            stderr = result.stderr.strip() or f"exit {result.returncode}"
+    finally:
+        os.environ["PATH"] = original_path
+        if alternative is not None:
+            (bindir / alternative).unlink()
+        (bindir / terminal).unlink()
+    return argv, style, stderr
+
+
+def verify_terminal_launch() -> None:
+    """Every argv shape really starts the command inside its terminal.
+
+    Stub terminals stand in for the real ones, so this runs headless and starts
+    no privileged command, but the argv comes from the installed registry and
+    is executed unchanged.
+    """
+    checked: list[str] = []
+
+    with tempfile.TemporaryDirectory(prefix="amonite-terminal-") as workdir:
+        root = Path(workdir)
+        bindir = root / "bin"
+        bindir.mkdir()
+
+        for style, terminal, through_alternative in _terminal_style_probes():
+            marker = root / f"{style}.marker"
+            argv, resolved_style, stderr = _run_terminal_probe(
+                bindir,
+                marker,
+                terminal,
+                _TERMINAL_STUBS[style],
+                _ALTERNATIVE_LINK if through_alternative else None,
+            )
+            if argv is None:
+                fail(f"style {style!r}: no terminal resolved from {terminal!r}")
+            elif resolved_style != style:
+                fail(f"style {style!r}: resolver chose {resolved_style!r} for {terminal}")
+            elif not marker.is_file():
+                fail(f"style {style!r}: {terminal} did not run the command: {stderr}")
+            else:
+                checked.append(f"{style} via {terminal}")
+
+    if checked:
+        ok(f"terminal argv runs the command ({len(checked)} shapes: {', '.join(checked)})")
+
+
+def verify_capability_failure_modes() -> None:
+    """Resolution degrades safely when the system cannot answer a capability.
+
+    One case per contract, each ending either in a launchable argv or in a
+    message that names no executable.
+    """
+    from amonite_welcome import actions
+    from amonite_welcome.actions import CapabilityUnavailableError, RegistryError
+
+    original_path = os.environ.get("PATH", "")
+    checked: list[str] = []
+
+    with tempfile.TemporaryDirectory(prefix="amonite-negative-") as workdir:
+        root = Path(workdir)
+        bindir = root / "bin"
+        bindir.mkdir()
+
+        # No terminal at all: a clear message that keeps provider names out.
+        os.environ["PATH"] = str(bindir)
+        try:
+            actions.resolve("system-update")
+        except CapabilityUnavailableError as error:
+            detail = str(error).lower()
+            leaks = [name for name in actions.providers("terminal") if name in detail]
+            if leaks:
+                fail(f"system-update message leaks provider names: {leaks}")
+            else:
+                checked.append("no terminal")
+        except Exception as error:  # noqa: BLE001 - any other outcome is a defect
+            fail(f"missing terminal raised {type(error).__name__}: {error}")
+        else:
+            fail("missing terminal must raise CapabilityUnavailableError")
+        finally:
+            os.environ["PATH"] = original_path
+
+        # No settings program: same contract for an application capability.
+        os.environ["PATH"] = str(bindir)
+        try:
+            actions.resolve("desktop-settings")
+        except CapabilityUnavailableError as error:
+            detail = str(error).lower()
+            leaks = [
+                name for name in actions.providers("desktop-settings") if name in detail
+            ]
+            if leaks:
+                fail(f"desktop-settings message leaks provider names: {leaks}")
+            elif actions.available("desktop-settings"):
+                fail("available(desktop-settings) must be False without a provider")
+            else:
+                checked.append("no settings program")
+        except Exception as error:  # noqa: BLE001
+            fail(f"missing settings program raised {type(error).__name__}: {error}")
+        else:
+            fail("missing settings program must raise CapabilityUnavailableError")
+        finally:
+            os.environ["PATH"] = original_path
+
+        # An alternatives symlink pointing at a terminal the registry never
+        # heard of: fall back to the documented interface and still run.
+        marker = root / "unknown.marker"
+        argv, style, stderr = _run_terminal_probe(
+            bindir, marker, "not-a-known-terminal", _TERMINAL_STUBS["exec-argv"],
+            _ALTERNATIVE_LINK,
+        )
+        if style != actions._UNKNOWN_TERMINAL_STYLE:
+            fail(f"unknown alternatives target adopted {style!r}")
+        elif not marker.is_file():
+            fail(f"unknown alternatives target did not run the command: {stderr}")
+        else:
+            checked.append("unknown alternatives target")
+
+        # A wrapper target provides the historical single-string interface.
+        marker = root / "wrapper.marker"
+        argv, style, stderr = _run_terminal_probe(
+            bindir, marker, "some-terminal.wrapper", _TERMINAL_STUBS["exec-string"],
+            _ALTERNATIVE_LINK,
+        )
+        if style != "exec-string":
+            fail(f"wrapper alternatives target adopted {style!r}")
+        elif not marker.is_file():
+            fail(f"wrapper alternatives target did not run the command: {stderr}")
+        else:
+            checked.append("wrapper alternatives target")
+
+        # An argv shape the resolver does not implement must fail loudly rather
+        # than fall back to a shape that would mangle the command line.
+        fixture = root / "registry"
+        fixture.mkdir()
+        (fixture / "providers.yaml").write_text(
+            "version: 1\n"
+            "terminal:\n"
+            "  providers:\n"
+            "    - id: stub-terminal\n"
+            "      style: not-a-style\n"
+            "capabilities:\n"
+            "  system-update:\n"
+            "    kind: terminal-command\n"
+            "    command: printf ok\n",
+            encoding="utf-8",
+        )
+        _write_stub(bindir, "stub-terminal", 'exec "$@"\n')
+        os.environ["AMONITE_WELCOME_PKGDATADIR"] = str(fixture)
+        os.environ["PATH"] = str(bindir)
+        actions.reload_registry()
+        try:
+            actions.resolve("system-update")
+        except RegistryError:
+            checked.append("unimplemented argv style")
+        except Exception as error:  # noqa: BLE001
+            fail(f"unknown argv style raised {type(error).__name__}: {error}")
+        else:
+            fail("unknown argv style must raise RegistryError")
+        finally:
+            os.environ["PATH"] = original_path
+            os.environ["AMONITE_WELCOME_PKGDATADIR"] = str(PKGDATA)
+            actions.reload_registry()
+
+    ok(f"capability failure modes degrade safely ({', '.join(checked)})")
+def verify_capabilities_diagnostic() -> None:
+    """``--capabilities`` reports the system without launching anything."""
+    from amonite_welcome import actions
+
+    launcher = BINDIR / "amonite-welcome"
+    # The installed launcher resolves its data directory from the prefix it was
+    # configured for. Verification runs against a staging tree, so point it at
+    # the tree under test through the environment it already honours.
+    result = subprocess.run(
+        [str(launcher), "--capabilities"],
+        capture_output=True,
+        text=True,
+        timeout=60,
+        env={
+            **os.environ,
+            "PYTHONPATH": str(PKGDATA),
+            "AMONITE_WELCOME_PKGDATADIR": str(PKGDATA),
+        },
+    )
+    if result.returncode != 0:
+        fail(f"--capabilities exited {result.returncode}: {result.stderr.strip()}")
+    report = result.stdout
+    missing = [name for name in actions.known_capabilities() if name not in report]
+    if missing:
+        fail(f"--capabilities does not report {missing}")
+    if "terminal" not in report or "XDG_CURRENT_DESKTOP" not in report:
+        fail("--capabilities must report the terminal and the session")
+    for state in ("available", "unavailable"):
+        if state in report:
+            break
+    else:
+        fail("--capabilities must report availability per capability")
+    env = {
+        **os.environ,
+        "PYTHONPATH": str(PKGDATA),
+        "AMONITE_WELCOME_PKGDATADIR": str(PKGDATA),
+    }
+    version = subprocess.run(
+        [str(launcher), "--version"], capture_output=True, text=True, timeout=60, env=env
+    )
+    from amonite_welcome import config
+
+    if version.returncode != 0 or config.VERSION not in version.stdout:
+        fail(f"--version must print {config.VERSION!r}, got {version.stdout.strip()!r}")
+
+    usage = subprocess.run(
+        [str(launcher), "--help"], capture_output=True, text=True, timeout=60, env=env
+    )
+    if usage.returncode != 0:
+        fail(f"--help exited {usage.returncode}")
+    for option in ("--capabilities", "--version", "--help"):
+        if option not in usage.stdout:
+            fail(f"--help does not document {option}")
+
+    ok(
+        f"launcher options report only: --capabilities "
+        f"({len(actions.known_capabilities())} capabilities), --version "
+        f"({config.VERSION}), --help"
+    )
+
+
+def verify_action_visibility() -> None:
+    """An action appears only while this system has a provider for it.
+
+    The same handbook is presented twice: once with a provider installed and
+    once without, which is what a user does by installing or removing one.
+    """
+    from amonite_welcome import actions
+    from amonite_welcome.pages import Action, visible_actions
+
+    capability = "desktop-settings"
+    provider = actions.providers(capability)[0]
+    offered = [
+        Action(label="Docs", url="https://example.invalid"),
+        Action(label="Settings", command=capability),
+    ]
+    original_path = os.environ.get("PATH", "")
+
+    with tempfile.TemporaryDirectory(prefix="amonite-visibility-") as workdir:
+        bindir = Path(workdir) / "bin"
+        bindir.mkdir()
+        try:
+            os.environ["PATH"] = str(bindir)
+            labels = [action.label for action in visible_actions(offered)]
+            if labels != ["Docs"]:
+                fail(f"without a provider the action must not be offered: {labels}")
+
+            _write_stub(bindir, provider, "exit 0\n")
+            labels = [action.label for action in visible_actions(offered)]
+            if labels != ["Docs", "Settings"]:
+                fail(f"with a provider installed the action must be offered: {labels}")
+        finally:
+            os.environ["PATH"] = original_path
+
+    ok("actions follow provider availability (offered when present, absent when not)")
+
+
+def verify_capability_launchability() -> None:
+    """What resolves must be startable, and must survive a session PATH.
+
+    Graphical sessions frequently omit the sbin directories from PATH while
+    Debian keeps package management programs there; a capability that resolves
+    for the maintainer must not vanish for the user because of it.
+    """
+    from amonite_welcome import actions
+    from amonite_welcome.actions import CapabilityUnavailableError
+
+    resolvable: dict[str, list[str]] = {}
+    for capability in sorted(actions.known_capabilities()):
+        try:
+            argv = actions.resolve(capability)
+        except CapabilityUnavailableError:
+            continue
+        resolvable[capability] = argv
+        program = argv[0]
+        if not os.path.isabs(program):
+            fail(f"{capability}: argv must start with a resolved path, got {program!r}")
+        elif not (os.path.isfile(program) and os.access(program, os.X_OK)):
+            fail(f"{capability}: {program} is not an executable file")
+
+    original_path = os.environ.get("PATH", "")
+    os.environ["PATH"] = _SESSION_PATH
+    try:
+        for capability in resolvable:
+            try:
+                actions.resolve(capability)
+            except CapabilityUnavailableError:
+                fail(
+                    f"{capability}: available on this system, but unavailable with "
+                    f"the PATH a desktop session provides ({_SESSION_PATH})"
+                )
+    finally:
+        os.environ["PATH"] = original_path
+
+    if resolvable:
+        ok(
+            f"resolved capabilities are executable and survive a session PATH "
+            f"({len(resolvable)} of {len(actions.known_capabilities())})"
+        )
+    else:
+        ok("no capability provider is installed on this system (skipped)")
 
 
 def verify_desktop_files(identity: dict[str, str]) -> None:
@@ -867,9 +1252,11 @@ def verify_gtk_application(identity: dict[str, str], pages: list) -> None:
 
     resource._register()
 
+    from amonite_welcome.actions import available as capability_available
     from amonite_welcome.window import WelcomeWindow
 
     warnings: list[str] = []
+    hidden_capabilities: set[str] = set()
 
     def on_log(domain, level, message):
         if level in (GLib.LogLevelFlags.LEVEL_CRITICAL, GLib.LogLevelFlags.LEVEL_ERROR):
@@ -935,14 +1322,43 @@ def verify_gtk_application(identity: dict[str, str], pages: list) -> None:
         if not window.autostart_button.get_focusable():
             fail("autostart checkbox must be focusable")
         expected_sidebar = i18n.text("ui", "sidebar_label", default="Chapters")
-        if "_set_accessible_label" not in window_source or "_mark_decorative" not in window_source:
-            fail("window.py must expose accessible labels and mark decorative images")
-        if "AccessibleRole.PRESENTATION" not in window_source:
-            fail("decorative images must use PRESENTATION accessible role")
-        if "AccessibleRole.HEADING" not in window_source:
-            fail("page and section titles must use HEADING accessible role")
-        if "_set_paragraph" not in window_source:
-            fail("prose labels must set an explicit non-heading accessible role")
+        # Accessible roles are asserted on the built window, not in the source:
+        # ``accessible-role`` is construct-only, so an assignment made after a
+        # widget exists does not stay on it, and the code can look right while
+        # every heading is announced as ordinary text.
+        def labels_with_class(widget, css_class):
+            found = []
+            if isinstance(widget, Gtk.Label) and css_class in widget.get_css_classes():
+                found.append(widget)
+            child = widget.get_first_child()
+            while child is not None:
+                found.extend(labels_with_class(child, css_class))
+                child = child.get_next_sibling()
+            return found
+
+        roles_checked = 0
+        for index in range(len(pages)):
+            window.sidebar.select_row(window.sidebar.get_row_at_index(index))
+            pump_events()
+            page_widget = window.stack.get_visible_child()
+            if page_widget is None:
+                continue
+            for css_class, expected in (
+                ("page-title", Gtk.AccessibleRole.HEADING),
+                ("section-heading", Gtk.AccessibleRole.HEADING),
+                ("page-description", Gtk.AccessibleRole.LABEL),
+                ("section-body", Gtk.AccessibleRole.LABEL),
+            ):
+                for label in labels_with_class(page_widget, css_class):
+                    roles_checked += 1
+                    if label.get_accessible_role() != expected:
+                        fail(
+                            f"{pages[index].title!r}: {css_class} is announced as "
+                            f"{label.get_accessible_role().value_nick!r}, expected "
+                            f"{expected.value_nick!r}"
+                        )
+        if roles_checked < len(pages):
+            fail(f"accessible roles were not observed on the built window ({roles_checked})")
         if 'f"{label}: {value}"' not in window_source:
             fail("fact values must expose paired accessible labels")
         if "grab_focus()" not in window_source:
@@ -984,11 +1400,22 @@ def verify_gtk_application(identity: dict[str, str], pages: list) -> None:
                 fail(f"keyboard navigation failed for page {pages[index].title!r}")
             child = window.stack.get_visible_child()
             action_lists = find_action_lists(child) if child is not None else []
+            # The window offers an action only when this system can carry it
+            # out. Expectations are derived from the same contract, not from
+            # the window, so a capability that silently stops being checked
+            # shows up as a mismatch here.
             expected_actions = [
                 action
                 for action in pages[index].actions
-                if action.command or action.url
+                if action.url or (action.command and capability_available(action.command))
             ]
+            hidden = [
+                action.command
+                for action in pages[index].actions
+                if action.command and not capability_available(action.command)
+            ]
+            for capability in hidden:
+                hidden_capabilities.add(capability)
             if len(action_lists) != (1 if expected_actions else 0):
                 fail(
                     f"page {pages[index].title!r}: expected "
@@ -1028,9 +1455,11 @@ def verify_gtk_application(identity: dict[str, str], pages: list) -> None:
             pump_events()
             if window.get_focus() is None:
                 fail("focus lost during repeated keyboard page navigation")
+        hidden = ", ".join(sorted(hidden_capabilities)) or "none"
         ok(
             f"keyboard navigation and accessibility semantics "
-            f"(sidebar {expected_sidebar!r}; {pages_with_actions} action page(s))"
+            f"(sidebar {expected_sidebar!r}; {pages_with_actions} action page(s); "
+            f"capabilities without a provider here, and so not offered: {hidden})"
         )
 
         for index in range(len(pages)):
@@ -1122,6 +1551,11 @@ def main() -> int:
     verify_error_handling()
     verify_system_info()
     verify_capability_resolution()
+    verify_terminal_launch()
+    verify_capability_failure_modes()
+    verify_action_visibility()
+    verify_capabilities_diagnostic()
+    verify_capability_launchability()
     verify_desktop_files(identity)
     verify_icons()
     verify_gtk_application(identity, pages)

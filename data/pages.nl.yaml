@@ -43,13 +43,13 @@ pages:
           Een nieuwe installatie bevat mogelijk niet de nieuwste
           software-updates. Het wordt aanbevolen om updates te installeren
           voordat u andere software toevoegt of persoonlijke gegevens naar de
-          computer kopieert. Gebruik hieronder Systeem bijwerken, of open de
-          pakketbeheerder.
+          computer kopieert. Gebruik hieronder Systeem bijwerken.
       - heading: Software installeren
         body: >
-          Het basissysteem blijft klein totdat u anders beslist. Open
-          hieronder de pakketbeheerder om de toepassingen te vinden en te
-          installeren die u nodig hebt uit vertrouwde softwarebronnen.
+          Het basissysteem blijft klein totdat u anders beslist. Aanvullende
+          toepassingen komen uit dezelfde vertrouwde softwarebronnen als de
+          updates en worden geïnstalleerd met de standaardpakkethulpmiddelen
+          van het systeem. Open hieronder de documentatie om te zien hoe.
       - heading: De documentatie lezen
         body: >
           Dit handboek is slechts een startpunt. Uitgavenotities en langere
@@ -66,9 +66,6 @@ pages:
       - label: Systeem bijwerken
         description: Software-updates van de distributie installeren.
         command: system-update
-      - label: Pakketbeheerder
-        description: Software uit vertrouwde softwarebronnen doorbladeren en installeren.
-        command: package-manager
       - label: Documentatie
         description: Uitgavenotities en handleidingen op de projectwebsite openen.
         url: $website_url
@@ -82,9 +79,8 @@ pages:
           De waarden hieronder beschrijven deze installatie en computer zoals
           ze waren toen u dit venster opende. Ze zijn nuttig wanneer u
           documentatie opzoekt of om hulp vraagt. Ze worden niet live
-          bijgewerkt. Open deze toepassing opnieuw, of gebruik
-          Desktopinstellingen, als u na een wijziging actuele waarden nodig
-          hebt.
+          bijgewerkt. Open deze toepassing opnieuw als u na een wijziging
+          actuele waarden nodig hebt.
       - heading: Deze installatie
         data: os_facts
       - heading: Deze computer

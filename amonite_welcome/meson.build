@@ -44,6 +44,7 @@ config_py = configure_file(
     'APP_ID': app_id,
     'RESOURCE_BASE_PATH': resource_base_path,
     'PROJECT_NAME': meson.project_name(),
+    'VERSION': meson.project_version(),
   },
 )
 

@@ -43,12 +43,13 @@ pages:
           Uma instalação nova pode não incluir as últimas atualizações de
           software. Recomenda-se instalar as atualizações antes de adicionar
           outro software ou copiar dados pessoais para o computador. Use
-          Atualizar o sistema abaixo, ou abra o gestor de pacotes.
+          Atualizar o sistema abaixo.
       - heading: Instalar software
         body: >
-          O sistema base permanece pequeno até que escolha o contrário. Abra
-          o gestor de pacotes abaixo para encontrar e instalar as aplicações
-          de que precisa a partir de fontes de software de confiança.
+          O sistema base permanece pequeno até que escolha o contrário. As
+          aplicações adicionais vêm das mesmas fontes de software de confiança
+          que as atualizações e são instaladas com as ferramentas de pacotes
+          padrão do sistema. Abra a documentação abaixo para saber como.
       - heading: Ler a documentação
         body: >
           Este manual é apenas um ponto de partida. As notas de lançamento e
@@ -65,9 +66,6 @@ pages:
       - label: Atualizar o sistema
         description: Instalar atualizações de software da distribuição.
         command: system-update
-      - label: Gestor de pacotes
-        description: Explorar e instalar software a partir de fontes de software de confiança.
-        command: package-manager
       - label: Documentação
         description: Abrir notas de lançamento e guias no site do projeto.
         url: $website_url
@@ -81,8 +79,8 @@ pages:
           Os valores abaixo descrevem esta instalação e este computador tal
           como estavam quando abriu esta janela. São úteis quando consulta
           documentação ou pede ajuda. Não são atualizados em tempo real.
-          Reabra esta aplicação, ou use Definições do ambiente de trabalho,
-          se precisar de valores atuais após uma alteração.
+          Reabra esta aplicação se precisar de valores atuais após uma
+          alteração.
       - heading: Esta instalação
         data: os_facts
       - heading: Este computador

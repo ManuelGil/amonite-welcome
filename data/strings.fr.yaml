@@ -28,11 +28,6 @@ facts:
   disk_usage: Utilisation du disque
 
 capabilities:
-  package-manager:
-    unavailable: >
-      Aucun gestionnaire de paquets n’est disponible sur ce système.
-      Installez des logiciels depuis le menu des applications,
-      ou contactez votre administrateur.
   desktop-settings:
     unavailable: >
       Les paramètres du bureau ne sont pas disponibles.

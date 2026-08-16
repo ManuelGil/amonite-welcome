@@ -28,11 +28,6 @@ facts:
   disk_usage: Festplattennutzung
 
 capabilities:
-  package-manager:
-    unavailable: >
-      Auf diesem System ist kein Paketmanager verfügbar.
-      Installieren Sie Software über das Anwendungsmenü
-      oder wenden Sie sich an Ihren Administrator.
   desktop-settings:
     unavailable: >
       Die Desktop-Einstellungen sind nicht verfügbar.

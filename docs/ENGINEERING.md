@@ -44,15 +44,67 @@ Handbook actions name **capabilities** (`command:` in YAML). Providers live in
 (`resolve` / `launch` / `available` / `providers` / `known_capabilities`).
 
 Kinds: `application` (first available binary) and `terminal-command` (run
-inside the first available terminal). Terminal argv styles
-(`debian-e`, `gnome`, `konsole`, `plain`) are the only technical mapping kept
-in Python.
+inside the first available terminal).
+
+An action is offered only when this system has a provider for its capability
+(`pages.visible_actions`). The handbook does not point at a tool the machine
+does not have. Availability is read when the window is built, so a provider
+installed later appears the next time Welcome starts, and activation resolves
+again, keeping the unavailable message for a provider that disappears while
+the window is open.
+
+A provider is a plain executable name. Resolution is declaration order plus
+what is installed, and nothing else: Welcome stays desktop-independent, so the
+running session is reported by `--capabilities` and never decides what is
+launched. The registry therefore lists the programs this system actually
+installs; a program belonging to another desktop is not listed, so it cannot be
+selected merely because someone installed its package. A capability no edition
+provides degrades to its `strings.<lang>.yaml` message. `PATH` lookup also
+covers the sbin directories, which graphical sessions frequently omit.
+
+Terminal argv styles are the only technical mapping kept in Python. Terminals
+disagree about `-e`, and the wrong shape is fatal at runtime: the terminal
+tries to execute the whole command line as a program name and the user sees
+"no such file or directory" instead of the command.
+
+| Style | Shape |
+| ----- | ----- |
+| `exec-argv` | `terminal -e sh -c CMD` |
+| `exec-string` | `terminal -e "sh -c CMD"` (one shell-quoted string) |
+| `dash-dash` | `terminal -- sh -c CMD` |
+| `plain` | `terminal sh -c CMD` |
+| `start-argv` | `terminal start -- sh -c CMD` |
+| `alternative` | alternatives symlink: adopt the target's style |
+
+`x-terminal-emulator` must stay `alternative`. It is a symlink whose target the
+administrator chooses, so its argv shape is read from that target (and from the
+`.wrapper` convention) at runtime; any fixed style there is a bug. Shapes for
+targets that are not themselves providers live under
+`terminal.alternative_styles`: consulted only to talk to a target the symlink
+already points at, never to select a terminal.
+
+Each style is pinned per terminal in `packaging/validate-config.py`
+(`VERIFIED_TERMINAL_STYLES`) and exercised end to end by `packaging/verify.py`,
+which runs the produced argv against stub terminals that reproduce the real
+parsing, including the alternatives path and the unknown-target fallback.
+Verify a change against the terminal itself before editing the table.
+
+Which program the system installs for each application capability is pinned in
+`packaging/validate-config.py` (`DISTRIBUTION_PROVIDERS`). Adding a provider is
+therefore a reviewed decision recorded next to the evidence for it, not a line
+that quietly makes another desktop's tool reachable.
 
 To extend providers or capabilities, edit `data/providers.yaml`, then:
 
 ```bash
 make validate
 make verify   # after install
+```
+
+To see what an installation resolves, on the machine that shows the problem:
+
+```bash
+amonite-welcome --capabilities
 ```
 
 ## Maintainer interface

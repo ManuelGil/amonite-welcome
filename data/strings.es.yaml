@@ -28,11 +28,6 @@ facts:
   disk_usage: Uso del disco
 
 capabilities:
-  package-manager:
-    unavailable: >
-      No hay un gestor de paquetes disponible en este sistema.
-      Instale software desde el menú de aplicaciones,
-      o consulte a su administrador.
   desktop-settings:
     unavailable: >
       La configuración del escritorio no está disponible.

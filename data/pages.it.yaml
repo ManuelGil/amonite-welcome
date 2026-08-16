@@ -43,13 +43,14 @@ pages:
           Una nuova installazione potrebbe non includere gli ultimi
           aggiornamenti software. Si consiglia di installare gli aggiornamenti
           prima di aggiungere altro software o copiare dati personali sul
-          computer. Usa Aggiorna il sistema qui sotto, oppure apri il gestore
-          di pacchetti.
+          computer. Usa Aggiorna il sistema qui sotto.
       - heading: Installare software
         body: >
-          Il sistema di base resta piccolo finché non decidi diversamente.
-          Apri il gestore di pacchetti qui sotto per trovare e installare le
-          applicazioni di cui hai bisogno da fonti software attendibili.
+          Il sistema di base resta piccolo finché non decidi diversamente. Le
+          applicazioni aggiuntive provengono dalle stesse fonti software
+          attendibili degli aggiornamenti e si installano con gli strumenti di
+          pacchetti standard del sistema. Apri la documentazione qui sotto per
+          sapere come.
       - heading: Leggere la documentazione
         body: >
           Questo manuale è solo un punto di partenza. Note di rilascio e guide
@@ -66,9 +67,6 @@ pages:
       - label: Aggiorna il sistema
         description: Installa gli aggiornamenti software della distribuzione.
         command: system-update
-      - label: Gestore di pacchetti
-        description: Esplora e installa software da fonti software attendibili.
-        command: package-manager
       - label: Documentazione
         description: Apri note di rilascio e guide sul sito del progetto.
         url: $website_url
@@ -82,8 +80,8 @@ pages:
           I valori qui sotto descrivono questa installazione e questo computer
           come erano quando hai aperto questa finestra. Sono utili quando
           consulti la documentazione o chiedi aiuto. Non vengono aggiornati in
-          tempo reale. Riapri questa applicazione, oppure usa Impostazioni del
-          desktop, se ti servono valori aggiornati dopo una modifica.
+          tempo reale. Riapri questa applicazione se ti servono valori
+          aggiornati dopo una modifica.
       - heading: Questa installazione
         data: os_facts
       - heading: Questo computer

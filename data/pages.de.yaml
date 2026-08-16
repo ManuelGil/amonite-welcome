@@ -45,12 +45,14 @@ pages:
           Softwareaktualisierungen. Es wird empfohlen, Aktualisierungen zu
           installieren, bevor Sie weitere Software hinzufügen oder persönliche
           Daten auf den Computer kopieren. Nutzen Sie unten System
-          aktualisieren, oder öffnen Sie den Paketmanager.
+          aktualisieren.
       - heading: Software installieren
         body: >
           Das Basissystem bleibt klein, bis Sie etwas anderes entscheiden.
-          Öffnen Sie unten den Paketmanager, um die benötigten Anwendungen aus
-          vertrauenswürdigen Softwarequellen zu finden und zu installieren.
+          Weitere Anwendungen stammen aus denselben vertrauenswürdigen
+          Softwarequellen wie die Aktualisierungen und werden mit den
+          Standardpaketwerkzeugen des Systems installiert. Öffnen Sie unten die
+          Dokumentation, um zu erfahren, wie.
       - heading: Dokumentation lesen
         body: >
           Dieses Handbuch ist nur ein Ausgangspunkt. Versionshinweise und
@@ -68,9 +70,6 @@ pages:
       - label: System aktualisieren
         description: Softwareaktualisierungen der Distribution installieren.
         command: system-update
-      - label: Paketmanager
-        description: Software aus vertrauenswürdigen Softwarequellen durchsuchen und installieren.
-        command: package-manager
       - label: Dokumentation
         description: Versionshinweise und Anleitungen auf der Projektwebsite öffnen.
         url: $website_url
@@ -85,8 +84,8 @@ pages:
           so, wie sie waren, als Sie dieses Fenster geöffnet haben. Sie sind
           nützlich beim Nachschlagen in der Dokumentation oder beim Bitten um
           Hilfe. Sie werden nicht live aktualisiert. Öffnen Sie diese
-          Anwendung erneut, oder nutzen Sie Desktop-Einstellungen, wenn Sie
-          nach einer Änderung aktuelle Werte brauchen.
+          Anwendung erneut, wenn Sie nach einer Änderung aktuelle Werte
+          brauchen.
       - heading: Diese Installation
         data: os_facts
       - heading: Dieser Computer

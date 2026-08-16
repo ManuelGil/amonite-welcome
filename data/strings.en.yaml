@@ -31,11 +31,6 @@ facts:
   disk_usage: Disk Usage
 
 capabilities:
-  package-manager:
-    unavailable: >
-      A package manager is not available on this system.
-      Install software from the applications menu,
-      or ask your administrator.
   desktop-settings:
     unavailable: >
       Desktop settings are not available.

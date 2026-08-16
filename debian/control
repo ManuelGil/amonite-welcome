@@ -26,15 +26,13 @@ Depends:
  python3-yaml,
  gir1.2-gtk-4.0,
 Recommends:
- network-manager-gnome,
+ network-manager-applet | network-manager-gnome,
  x-terminal-emulator,
 Suggests:
- synaptic,
  xfce4-settings,
- xfce4-terminal,
- gnome-control-center,
 Description: First-run handbook for the Amonite desktop
  Amonite Welcome is a short handbook shown after installation. It introduces
  Amonite and opens optional system capabilities (network settings, updates,
- package manager, desktop settings) when a provider is available. The
- application itself requires only GTK 4 and Python.
+ desktop settings) when a provider is available, and leaves out the ones this
+ system has no provider for. The application itself requires only GTK 4 and
+ Python.

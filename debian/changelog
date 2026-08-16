@@ -1,7 +1,18 @@
+amonite-welcome (1.1.0) unstable; urgency=medium
+
+  * Show actions only when their capabilities are available.
+  * Add --help, --version, and --capabilities to the launcher.
+  * Fix terminal updates through the alternatives-selected terminal.
+  * Remove the unsupported graphical package-manager action.
+  * Fix accessible heading roles.
+  * Align provider and packaging metadata with the installed system.
+
+ -- Manuel Gil <security@amonite.org>  Sat, 15 Aug 2026 23:55:00 +0000
+
 amonite-welcome (1.0.0) unstable; urgency=medium
 
-  * Version 1.0.0: first public stable release of the curated upstream tree.
-  * Preserve engineering contracts established during the 0.1.0 baseline.
+  * First public stable release.
+  * Preserve the engineering contracts established in 0.1.0.
 
  -- Manuel Gil <security@amonite.org>  Sat, 01 Aug 2026 22:00:00 +0000
 

@@ -4,61 +4,74 @@
 # Handbook YAML names capabilities; this file lists who can provide them.
 # User-visible messages live in strings.<lang>.yaml - not here.
 #
+# This file describes the system Welcome ships on. Providers are the programs
+# the distribution actually installs, so a program belonging to a different
+# desktop is never selected merely because someone installed its package.
+# Resolution stays desktop-independent: the running session is reported by
+# ``amonite-welcome --capabilities`` and never decides what is launched.
+#
 # kinds:
 #   application      - launch the first available provider binary
 #   terminal-command - run ``command`` inside the first available terminal
 #
-# Terminal argv ``style`` values are interpreted by actions.py (technical):
-#   debian-e  - terminal -e "sh -c …"
-#   gnome     - terminal -- sh -c …
-#   konsole   - terminal -e sh -c …
-#   plain     - terminal sh -c …   (default)
+# Terminal argv ``style`` values are interpreted by actions.py (technical).
+# Terminals disagree on how ``-e`` is parsed, and the wrong shape is the
+# difference between the command running and the terminal reporting
+# "no such file or directory":
+#   exec-argv    - terminal -e sh -c CMD     (command line as separate argv)
+#   exec-string  - terminal -e "sh -c CMD"   (one string, re-parsed by the terminal)
+#   dash-dash    - terminal -- sh -c CMD
+#   plain        - terminal sh -c CMD
+#   start-argv   - terminal start -- sh -c CMD
+#   alternative  - an alternatives symlink: adopt the style of its target
+#
+# Styles were verified by running each terminal; packaging/validate-config.py
+# pins them and packaging/verify.py executes every shape. Verify against the
+# terminal itself before changing one.
 
 version: 1
 
 terminal:
+  # The terminals this system provides, in preference order. The alternatives
+  # symlink comes first so the administrator's choice wins.
   providers:
     - id: x-terminal-emulator
-      style: debian-e
+      style: alternative
     - id: kitty
-      style: plain
-    - id: gnome-terminal
-      style: gnome
-    - id: xfce4-terminal
-      style: debian-e
-    - id: konsole
-      style: konsole
-    - id: lxterminal
-      style: debian-e
-    - id: mate-terminal
-      style: debian-e
-    - id: alacritty
       style: plain
     - id: foot
       style: plain
-    - id: wezterm
-      style: plain
+
+  # Argv shapes for terminals that can sit behind the alternatives symlink on
+  # a system whose administrator installed one. These are not providers: they
+  # are never selected on their own, only consulted to talk to the target the
+  # symlink already points at.
+  alternative_styles:
+    kitty: plain
+    foot: plain
+    xterm: exec-argv
+    konsole: exec-argv
+    alacritty: exec-argv
+    gnome-terminal: dash-dash
+    xfce4-terminal: exec-string
+    lxterminal: exec-string
+    mate-terminal: exec-string
+    wezterm: start-argv
 
 capabilities:
-  package-manager:
-    kind: application
-    providers:
-      - synaptic
-
   desktop-settings:
     kind: application
     providers:
+      # Provided by the desktop this system installs. Editions that compose a
+      # session from independent components ship no settings program, and the
+      # capability is then reported as unavailable rather than answered with a
+      # foreign desktop's tool.
       - xfce4-settings-manager
-      - gnome-control-center
-      - systemsettings
-      - mate-control-center
-      - lxqt-config
 
   network-settings:
     kind: application
     providers:
       - nm-connection-editor
-      - nm-connection-editor.real
 
   system-update:
     kind: terminal-command
