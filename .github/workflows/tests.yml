@@ -24,7 +24,7 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        os: [ubuntu-22.04, ubuntu-24.04, ubuntu-latest]
+        os: [ubuntu-24.04, ubuntu-latest]
     runs-on: ${{ matrix.os }}
     steps:
       - uses: actions/checkout@v4
@@ -34,7 +34,7 @@ jobs:
       - run: sudo apt-get update
       - run: >-
           sudo apt-get install -y desktop-file-utils gir1.2-gtk-4.0 libgtk-4-dev
-          meson ninja-build python3-gi python3-yaml
+          meson ninja-build python-gi-dev python3-gi python3-yaml
       # Catalogs, desktop entries, provider registry and build identity.
       - run: make validate
       - run: make test
@@ -49,15 +49,15 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        os: [ubuntu-22.04, ubuntu-24.04, ubuntu-latest]
+        os: [ubuntu-24.04, ubuntu-latest]
     runs-on: ${{ matrix.os }}
     steps:
       - uses: actions/checkout@v4
       - run: sudo apt-get update
       - run: >-
           sudo apt-get install -y build-essential debhelper desktop-file-utils
-          gir1.2-gtk-4.0 libgtk-4-dev lintian meson ninja-build python3-gi
-          python3-yaml
+          gir1.2-gtk-4.0 libgtk-4-dev lintian meson ninja-build python-gi-dev
+          python3-gi python3-yaml
       - run: make package
       - run: sudo apt-get install -y ./dist/amonite-welcome_*_all.deb
       # Reporting options must answer without a display and without starting
@@ -72,26 +72,8 @@ jobs:
       - run: test ! -e /usr/share/amonite-welcome
       - run: test ! -e /usr/share/applications/amonite-welcome.desktop
 
-  # Compatibility: Debian Stable (bookworm container).
+  # Compatibility: Debian Stable (trixie container).
   compatibility-debian-stable:
-    runs-on: ubuntu-24.04
-    container: debian:bookworm
-    steps:
-      - uses: actions/checkout@v4
-      - run: apt-get update
-      - run: >-
-          apt-get install -y debhelper desktop-file-utils gir1.2-gtk-4.0
-          libgtk-4-dev lintian meson ninja-build python3 python3-gi python3-yaml
-          sudo
-      - run: make package
-      - run: apt-get install -y ./dist/amonite-welcome_*_all.deb
-      - run: cd /tmp && amonite-welcome --version
-      - run: desktop-file-validate /usr/share/applications/amonite-welcome.desktop
-      - run: apt-get remove -y amonite-welcome
-      - run: test ! -e /usr/bin/amonite-welcome
-
-  # Compatibility: Debian Testing (trixie container).
-  compatibility-debian-testing:
     runs-on: ubuntu-24.04
     container: debian:trixie
     steps:
@@ -99,8 +81,26 @@ jobs:
       - run: apt-get update
       - run: >-
           apt-get install -y debhelper desktop-file-utils gir1.2-gtk-4.0
-          libgtk-4-dev lintian meson ninja-build python3 python3-gi python3-yaml
-          sudo
+          libgtk-4-dev lintian meson ninja-build python-gi-dev python3 python3-gi
+          python3-yaml sudo
+      - run: make package
+      - run: apt-get install -y ./dist/amonite-welcome_*_all.deb
+      - run: cd /tmp && amonite-welcome --version
+      - run: desktop-file-validate /usr/share/applications/amonite-welcome.desktop
+      - run: apt-get remove -y amonite-welcome
+      - run: test ! -e /usr/bin/amonite-welcome
+
+  # Compatibility: Debian Testing (rolling container).
+  compatibility-debian-testing:
+    runs-on: ubuntu-24.04
+    container: debian:testing
+    steps:
+      - uses: actions/checkout@v4
+      - run: apt-get update
+      - run: >-
+          apt-get install -y debhelper desktop-file-utils gir1.2-gtk-4.0
+          libgtk-4-dev lintian meson ninja-build python-gi-dev python3 python3-gi
+          python3-yaml sudo
       - run: make package
       - run: apt-get install -y ./dist/amonite-welcome_*_all.deb
       - run: cd /tmp && amonite-welcome --version && amonite-welcome --capabilities

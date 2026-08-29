@@ -896,7 +896,7 @@ $tracked_noise"
     "$ROOT/packaging/verify.py" \
     "$ROOT/packaging/validate-config.py" \
     "$ROOT/health/check.py"; do
-    [ -x "$tool" ] || die "maintainer tool is not executable: ${tool#$ROOT/}"
+    [ -x "$tool" ] || die "maintainer tool is not executable: ${tool#"$ROOT"/}"
   done
   log "  OK generated paths are ignored and maintainer tools are executable"
 
