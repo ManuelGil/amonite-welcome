@@ -1,16 +1,10 @@
-# Python sources shipped with the application (excluding generated config.py).
+# Top-level package modules (excluding generated config.py).
 _python_sources = [
   '__init__.py',
   '__main__.py',
-  'main.py',
-  'window.py',
-  'pages.py',
-  'actions.py',
-  'strings.py',
-  'localeutil.py',
-  'system_info.py',
-  'identity.py',
-  'autostart.py',
+  'app.py',
+  'cli.py',
+  'content.py',
 ]
 
 fs = import('fs')
@@ -48,8 +42,9 @@ config_py = configure_file(
   },
 )
 
-install_data(
-  _python_sources,
-  install_dir: moduledir,
-)
+install_data(_python_sources, install_dir: moduledir)
 install_data(config_py, install_dir: moduledir)
+
+subdir('services')
+subdir('ui')
+subdir('theme')

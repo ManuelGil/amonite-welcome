@@ -6,4 +6,4 @@ export PATH := /usr/bin:/bin:$(PATH)
 export PYTHONNOUSERSITE := 1
 
 %:
-	dh $@ --buildsystem=meson
+	dh $@ --buildsystem=meson --builddirectory=builddir/amonite-welcome

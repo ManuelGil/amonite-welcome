@@ -28,7 +28,7 @@ from pathlib import Path
 from gi.repository import GLib
 
 from amonite_welcome import config
-from amonite_welcome import identity as identity_api
+from amonite_welcome.services import identity as identity_api
 
 _OVERRIDE_PATH = Path(
     GLib.get_user_config_dir(), "autostart", f"{config.PROJECT_NAME}.desktop"

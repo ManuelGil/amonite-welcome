@@ -2,23 +2,37 @@
 
 pages:
 
-  - title: Benvenuto
-    icon: go-home-symbolic
+  - id: welcome
+    title: Benvenuto
     description: >-
       Un'introduzione a $distro_name e a cosa aspettarsi da questo sistema.
     sections:
       - heading: $slogan
         body: >
-          $distro_name è un sistema operativo desktop basato su Debian Stable.
-          Debian Stable cambia lentamente e fornisce pacchetti che sono stati
-          testati insieme. L'installazione resta minimale così puoi aggiungere
-          ciò di cui hai bisogno.
+          $distro_name è un sistema operativo desktop costruito su Debian
+          Stable. Debian fornisce la base, che cambia lentamente ed è testata
+          nel suo insieme, e $distro_name fornisce le impostazioni predefinite
+          che vi si appoggiano. Una predefinita merita il suo posto se ti dà
+          una capacità chiara, e ciò che è utile il primo giorno non dovrebbe
+          diventare un ostacolo un mese dopo.
+      - heading: Questa edizione
+        requires: [edition_name]
+        body: >
+          Questa installazione è l'edizione $edition_name. Le edizioni si
+          distinguono per l'esperienza a cui puntano, non per la filosofia o
+          l'architettura, quindi ciò che leggi qui vale anche per le altre.
       - heading: Il desktop
         requires: [desktop_env_label]
         body: >
           Questa installazione usa $desktop_env_label come ambiente desktop.
           Resta facile da capire e da regolare, ed è la parte del sistema che
           vedrai e modificherai più spesso.
+      - heading: Predefinite che puoi cambiare
+        body: >
+          Ogni impostazione predefinita è un punto di partenza, non un
+          vincolo. Puoi sostituirne una in seguito senza lottare contro il
+          sistema, e chi sta alla tastiera continua a decidere cosa fa il
+          computer.
       - heading: A cosa serve questo manuale
         body: >
           Questa finestra è una breve introduzione, non un pannello di
@@ -28,8 +42,8 @@ pages:
           Quando un altro strumento gestisce già un compito, questo manuale
           indica quello strumento.
 
-  - title: Primi passi
-    icon: task-due-symbolic
+  - id: first-steps
+    title: Primi passi
     description: Passi consigliati per le prime ore dopo l'installazione.
     sections:
       - heading: Connettersi a Internet
@@ -41,25 +55,40 @@ pages:
       - heading: Aggiornare il sistema
         body: >
           Una nuova installazione potrebbe non includere gli ultimi
-          aggiornamenti software. Si consiglia di installare gli aggiornamenti
-          prima di aggiungere altro software o copiare dati personali sul
-          computer. Usa Aggiorna il sistema qui sotto.
+          aggiornamenti software. Installali prima di aggiungere altro
+          software o copiare dati personali sul computer. Tenere il sistema
+          aggiornato è ciò che lo mantiene stabile, compatibile e sicuro. Usa
+          Aggiorna il sistema qui sotto.
       - heading: Installare software
         body: >
           Il sistema di base resta piccolo finché non decidi diversamente. Le
           applicazioni aggiuntive provengono dalle stesse fonti software
-          attendibili degli aggiornamenti e si installano con gli strumenti di
-          pacchetti standard del sistema. Apri la documentazione qui sotto per
-          sapere come.
+          attendibili degli aggiornamenti. Apri Software qui sotto per
+          installarle e per applicare le impostazioni che un pacchetto da solo
+          non configura.
+      - heading: Scoprire le applicazioni incluse
+        body: >
+          Il menu delle applicazioni elenca i programmi inclusi con questa
+          installazione. Esploralo per vedere cosa è già disponibile.
+      - heading: Rendilo tuo
+        body: >
+          Con il sistema aggiornato, questo è il momento di configurare
+          stampanti e altre periferiche, collegare i tuoi account online,
+          regolare l'aspetto del desktop, attivare le funzioni di
+          accessibilità che ti servono e sostituire qualsiasi predefinita che
+          non si adatti al tuo modo di lavorare.
+      - heading: Mantenere il sistema sicuro
+        body: >
+          Installa gli aggiornamenti con regolarità e installa software solo
+          da fonti attendibili: quelle non ufficiali aggiungono un lavoro di
+          manutenzione e di sicurezza che ricade su di te. Conserva copie di
+          sicurezza di tutto ciò che non vuoi perdere e consulta la
+          documentazione prima di abilitare una fonte software aggiuntiva.
       - heading: Leggere la documentazione
         body: >
           Questo manuale è solo un punto di partenza. Note di rilascio e guide
           più lunghe sono sul sito del progetto. Apri Documentazione qui sotto
           quando ti serve più dettaglio.
-      - heading: Scoprire le applicazioni incluse
-        body: >
-          Il menu delle applicazioni elenca i programmi inclusi con questa
-          installazione. Esploralo per vedere cosa è già disponibile.
     actions:
       - label: Connessioni di rete
         description: Configura l'accesso di rete cablato o wireless.
@@ -67,21 +96,26 @@ pages:
       - label: Aggiorna il sistema
         description: Installa gli aggiornamenti software della distribuzione.
         command: system-update
+        primary: true
+      - label: Software
+        description: Installa applicazioni e applica le impostazioni che le accompagnano.
+        command: software-install
       - label: Documentazione
         description: Apri note di rilascio e guide sul sito del progetto.
         url: $website_url
 
-  - title: Il tuo sistema
-    icon: preferences-system-symbolic
+  - id: system
+    title: Il tuo sistema
     description: Informazioni su questa installazione e su questo computer.
     sections:
       - heading: Su questi dettagli
         body: >
           I valori qui sotto descrivono questa installazione e questo computer
           come erano quando hai aperto questa finestra. Sono utili quando
-          consulti la documentazione o chiedi aiuto. Non vengono aggiornati in
-          tempo reale. Riapri questa applicazione se ti servono valori
-          aggiornati dopo una modifica.
+          consulti la documentazione e sono ciò che conviene includere quando
+          segnali un problema. Non vengono aggiornati in tempo reale. Riapri
+          questa applicazione se ti servono valori aggiornati dopo una
+          modifica.
       - heading: Questa installazione
         data: os_facts
       - heading: Questo computer
@@ -91,8 +125,8 @@ pages:
         description: Apri le impostazioni del desktop per display, aspetto e sessione.
         command: desktop-settings
 
-  - title: Aiuto
-    icon: help-browser-symbolic
+  - id: help
+    title: Aiuto
     description: Documentazione e luoghi dove ottenere supporto.
     sections:
       - heading: Documentazione
@@ -105,6 +139,12 @@ pages:
           Domande su installazione, software e desktop possono essere
           indirizzate al punto di supporto pubblicato da questa
           installazione. Aprilo quando ti serve aiuto oltre questo manuale.
+      - heading: Segnalare un problema
+        body: >
+          Una segnalazione utile dice quale edizione e quale versione di
+          $distro_name stai usando, l'hardware o la macchina virtuale su cui
+          gira e il passo che non ha funzionato. Il tuo sistema mostra quasi
+          tutti quei valori.
     actions:
       - label: Documentazione
         description: Note di rilascio e guide sul sito del progetto.

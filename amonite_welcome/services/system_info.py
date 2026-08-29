@@ -23,8 +23,8 @@ import os
 import platform
 import shutil
 
-from amonite_welcome import strings as i18n
-from amonite_welcome.identity import read_os_release
+from amonite_welcome.services import catalog as i18n
+from amonite_welcome.services.identity import read_os_release
 
 Fact = tuple[str, str]
 
@@ -37,6 +37,7 @@ def os_facts() -> list[Fact]:
     """Facts that identify this operating system and desktop session."""
     readers = (
         ("distribution", _distribution),
+        ("edition", _edition),
         ("debian_version", _debian_version),
         ("desktop", _desktop),
         ("session_type", _session_type),
@@ -73,6 +74,13 @@ def hardware_facts() -> list[Fact]:
 
 def _distribution() -> str:
     return read_os_release().get("PRETTY_NAME", "")
+
+
+def _edition() -> str:
+    # os-release(5) VARIANT names the edition of this distribution. A
+    # distribution that publishes a single edition sets none, and the row is
+    # then omitted rather than shown empty.
+    return read_os_release().get("VARIANT", "")
 
 
 def _debian_version() -> str:

@@ -1,0 +1,109 @@
+# Copyright (C) Manuel Gil
+# SPDX-License-Identifier: GPL-3.0-or-later
+# CI environments demonstrate portability. They do not define the product.
+# Architectural jobs protect contracts; compatibility jobs install and run
+# on representative Debian-family systems.
+#
+# Same shape as Amonite Center's workflow: the jobs differ only where the two
+# applications genuinely differ.
+
+name: tests
+
+on:
+  push:
+  pull_request:
+
+# No job needs to write to the repository, and none reads a secret. Dropping
+# the token to read-only limits what a compromised build step could reach.
+permissions:
+  contents: read
+
+jobs:
+  # Architectural validation: identical on every Debian-family host.
+  architectural:
+    strategy:
+      fail-fast: false
+      matrix:
+        os: [ubuntu-22.04, ubuntu-24.04, ubuntu-latest]
+    runs-on: ${{ matrix.os }}
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          # Do not leave the token in .git/config for later steps to read.
+          persist-credentials: false
+      - run: sudo apt-get update
+      - run: >-
+          sudo apt-get install -y desktop-file-utils gir1.2-gtk-4.0 libgtk-4-dev
+          meson ninja-build python3-gi python3-yaml
+      # Catalogs, desktop entries, provider registry and build identity.
+      - run: make validate
+      - run: make test
+      # Post-install behaviour. GTK work is skipped without a display; that is
+      # reported by the gate itself, not silently ignored.
+      - run: make verify
+      - run: sudo apt-get install -y shellcheck
+      - run: shellcheck packaging/*.sh
+
+  # Compatibility: Ubuntu LTS and current Ubuntu release (GitHub runners).
+  compatibility-ubuntu:
+    strategy:
+      fail-fast: false
+      matrix:
+        os: [ubuntu-22.04, ubuntu-24.04, ubuntu-latest]
+    runs-on: ${{ matrix.os }}
+    steps:
+      - uses: actions/checkout@v4
+      - run: sudo apt-get update
+      - run: >-
+          sudo apt-get install -y build-essential debhelper desktop-file-utils
+          gir1.2-gtk-4.0 libgtk-4-dev lintian meson ninja-build python3-gi
+          python3-yaml
+      - run: make package
+      - run: sudo apt-get install -y ./dist/amonite-welcome_*_all.deb
+      # Reporting options must answer without a display and without starting
+      # a provider.
+      - run: cd /tmp && amonite-welcome --version && amonite-welcome --capabilities
+      - run: desktop-file-validate /usr/share/applications/amonite-welcome.desktop
+      - run: desktop-file-validate /etc/xdg/autostart/amonite-welcome.desktop
+      - run: test -f /usr/share/icons/hicolor/256x256/apps/amonite-welcome.png
+      - run: test -f /usr/share/amonite-welcome/amonite-welcome.gresource
+      - run: sudo apt-get remove -y amonite-welcome
+      - run: test ! -e /usr/bin/amonite-welcome
+      - run: test ! -e /usr/share/amonite-welcome
+      - run: test ! -e /usr/share/applications/amonite-welcome.desktop
+
+  # Compatibility: Debian Stable (bookworm container).
+  compatibility-debian-stable:
+    runs-on: ubuntu-24.04
+    container: debian:bookworm
+    steps:
+      - uses: actions/checkout@v4
+      - run: apt-get update
+      - run: >-
+          apt-get install -y debhelper desktop-file-utils gir1.2-gtk-4.0
+          libgtk-4-dev lintian meson ninja-build python3 python3-gi python3-yaml
+          sudo
+      - run: make package
+      - run: apt-get install -y ./dist/amonite-welcome_*_all.deb
+      - run: cd /tmp && amonite-welcome --version
+      - run: desktop-file-validate /usr/share/applications/amonite-welcome.desktop
+      - run: apt-get remove -y amonite-welcome
+      - run: test ! -e /usr/bin/amonite-welcome
+
+  # Compatibility: Debian Testing (trixie container).
+  compatibility-debian-testing:
+    runs-on: ubuntu-24.04
+    container: debian:trixie
+    steps:
+      - uses: actions/checkout@v4
+      - run: apt-get update
+      - run: >-
+          apt-get install -y debhelper desktop-file-utils gir1.2-gtk-4.0
+          libgtk-4-dev lintian meson ninja-build python3 python3-gi python3-yaml
+          sudo
+      - run: make package
+      - run: apt-get install -y ./dist/amonite-welcome_*_all.deb
+      - run: cd /tmp && amonite-welcome --version && amonite-welcome --capabilities
+      - run: desktop-file-validate /usr/share/applications/amonite-welcome.desktop
+      - run: apt-get remove -y amonite-welcome
+      - run: test ! -e /usr/bin/amonite-welcome

@@ -36,42 +36,12 @@ try:
 except locale.Error:
     pass
 
-# Options answered before GTK starts. They report; they never launch anything,
-# so they stay safe to run on a user's installation when reporting a problem.
-_USAGE = f"""Usage: {project_name} [OPTION]
-
-The Amonite first-run handbook. Without options it opens the window.
-
-  --capabilities   report the session, the terminal, and what each capability
-                   resolves to on this system, without starting anything
-  --version        print the version of this installation
-  -h, --help       print this message
-
-Other options are passed to GTK."""
-
 if __name__ == '__main__':
-    _options = sys.argv[1:]
+    from amonite_welcome import cli
 
-    if '-h' in _options or '--help' in _options:
-        print(_USAGE)
-        sys.exit(0)
-
-    if '--version' in _options:
-        from amonite_welcome import config
-
-        print(f'{project_name} {config.VERSION}')
-        sys.exit(0)
-
-    if '--capabilities' in _options:
-        os.environ.setdefault('AMONITE_WELCOME_PKGDATADIR', pkgdatadir)
-
-        from amonite_welcome import actions
-
-        report = actions.diagnose()
-        width = max(len(name) for name, _ in report)
-        for name, resolution in report:
-            print(f'{name:{width}}  {resolution}')
-        sys.exit(0)
+    status = cli.run(sys.argv[1:], pkgdatadir, project_name)
+    if status is not None:
+        sys.exit(status)
 
     import gi
 
@@ -82,6 +52,6 @@ if __name__ == '__main__':
     resource = Gio.Resource.load(os.path.join(pkgdatadir, f'{project_name}.gresource'))
     resource._register()
 
-    from amonite_welcome import main
+    from amonite_welcome import app
 
-    sys.exit(main.main(pkgdatadir))
+    sys.exit(app.main(pkgdatadir))

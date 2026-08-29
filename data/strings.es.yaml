@@ -17,6 +17,7 @@ dialogs:
 
 facts:
   distribution: Distribución
+  edition: Edición
   debian_version: Versión de Debian
   desktop: Escritorio
   session_type: Tipo de sesión
@@ -36,6 +37,11 @@ capabilities:
     unavailable: >
       La configuración de red no está disponible.
       Configure la red con las herramientas de red del escritorio,
+      o consulte a su administrador.
+  software-install:
+    unavailable: >
+      No hay un instalador de software disponible.
+      Instale aplicaciones con las herramientas de paquetes del sistema,
       o consulte a su administrador.
   system-update:
     unavailable: |

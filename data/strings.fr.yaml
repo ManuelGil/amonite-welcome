@@ -17,6 +17,7 @@ dialogs:
 
 facts:
   distribution: Distribution
+  edition: Édition
   debian_version: Version Debian
   desktop: Bureau
   session_type: Type de session
@@ -36,6 +37,11 @@ capabilities:
     unavailable: >
       Les paramètres réseau ne sont pas disponibles.
       Configurez le réseau avec les outils réseau du bureau,
+      ou contactez votre administrateur.
+  software-install:
+    unavailable: >
+      Aucun installateur de logiciels n’est disponible.
+      Installez les applications avec les outils de paquets du système,
       ou contactez votre administrateur.
   system-update:
     unavailable: |

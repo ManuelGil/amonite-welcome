@@ -32,6 +32,7 @@ missing. Callers use :func:`get` / :func:`load_identity` and never read YAML or
 
 from __future__ import annotations
 
+import re
 from collections.abc import Mapping, Sequence
 from functools import lru_cache
 from pathlib import Path
@@ -40,7 +41,7 @@ from urllib.parse import urlparse
 
 import yaml
 
-from amonite_welcome.localeutil import DEFAULT_LANGUAGE, editorial_language
+from amonite_welcome.services.locale import DEFAULT_LANGUAGE, editorial_language
 
 # Localized application prose, required in every identity.<lang>.yaml.
 APP_LOCALIZED_FIELDS = ("app_name", "slogan", "generic_name", "comment")
@@ -49,6 +50,18 @@ APP_LOCALIZED_FIELDS = ("app_name", "slogan", "generic_name", "comment")
 # data:, and other handlers are rejected so hostile os-release or catalogs
 # cannot open unexpected local handlers.
 _ALLOWED_WEB_URL_SCHEMES = frozenset({"http", "https"})
+
+# os-release ID as it may be used to name a file. Host metadata is untrusted:
+# anything outside this shape becomes empty rather than a path fragment.
+_SAFE_ID = re.compile(r"^[a-z0-9][a-z0-9._-]*$")
+
+
+def sanitize_identifier(value: str) -> str:
+    """Return *value* if it is a safe bare identifier, otherwise empty."""
+    value = value.strip().lower()
+    if not value or len(value) > 64 or not _SAFE_ID.match(value):
+        return ""
+    return value
 
 
 def is_safe_web_url(url: str) -> bool:
@@ -95,11 +108,14 @@ AUTHORING_URL_FIELDS = (
 
 # Distribution fields derived from os-release. Never declared in this repository.
 DISTRIBUTION_FIELDS = (
+    "distro_id",
     "distro_name",
     "pretty_name",
     "release_version",
     "release_codename",
     "release_label",
+    "edition_name",
+    "edition_id",
     "website_url",
     "forum_url",
 )
@@ -202,6 +218,10 @@ def load_os_identity(os_release_path: str = _DEFAULT_OS_RELEASE) -> dict[str, st
     pretty_name = data.get("PRETTY_NAME") or name
     version = data.get("VERSION_ID") or ""
     codename = data.get("VERSION_CODENAME") or ""
+    # os-release(5) VARIANT / VARIANT_ID name the edition of one distribution.
+    # A distribution that publishes a single edition sets neither, and then the
+    # edition fields stay empty and prose that declares them is omitted.
+    edition_name = (data.get("VARIANT") or "").strip()
     # os-release URLs are untrusted host metadata; only http(s) survive.
     website_url = sanitize_web_url(data.get("HOME_URL") or "")
     forum_url = sanitize_web_url(
@@ -216,11 +236,14 @@ def load_os_identity(os_release_path: str = _DEFAULT_OS_RELEASE) -> dict[str, st
         release_label = pretty_name
 
     return {
+        "distro_id": sanitize_identifier(data.get("ID") or ""),
         "distro_name": name,
         "pretty_name": pretty_name,
         "release_version": version,
         "release_codename": codename,
         "release_label": release_label,
+        "edition_name": edition_name,
+        "edition_id": sanitize_identifier(data.get("VARIANT_ID") or ""),
         "website_url": website_url,
         "forum_url": forum_url,
     }

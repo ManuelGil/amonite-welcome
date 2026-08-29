@@ -2,6 +2,6 @@
 <gresources>
   <gresource prefix="@RESOURCE_BASE_PATH@">
     <file preprocess="xml-stripblanks">ui/window.ui</file>
-    <file>style.css</file>
+    <file>theme/components.css</file>
   </gresource>
 </gresources>

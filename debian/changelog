@@ -1,3 +1,29 @@
+amonite-welcome (2.0.0) unstable; urgency=medium
+
+  * Say what the system is: the handbook now covers the reasoning behind the
+    defaults, the edition this installation runs, making the system yours,
+    keeping it secure, and what to include when reporting a problem.
+  * Read the edition from the VARIANT keys of os-release: it names the edition
+    in the Welcome chapter and is listed under Your System. A distribution
+    that publishes a single edition shows neither.
+  * Offer installing software as an action again, through the software-install
+    capability, shown only where a provider for it exists.
+  * Take the palette from the running desktop: surfaces, text, borders and the
+    accent are read from the GTK theme and derived into semantic roles, with a
+    conservative adjustment when a colour would not be readable.
+  * Compose the handbook as a document: numbered chapters, one reading measure,
+    prose without containers, a dense fact table, and the chapter's actions as
+    buttons below the text, with the recommended one marked.
+  * Split the interface into shell, navigation, page view, components,
+    accessibility and action activation; move platform code under
+    amonite_welcome/services.
+  * Key navigation on stable page ids instead of translated titles.
+  * Let a distribution restyle Welcome with one file, theme/distro.css.
+  * Keep capability visibility, accessibility semantics, keyboard navigation,
+    the seven handbook languages, and the launcher options unchanged.
+
+ -- Manuel Gil <security@amonite.org>  Fri, 28 Aug 2026 18:00:00 +0000
+
 amonite-welcome (1.1.0) unstable; urgency=medium
 
   * Show actions only when their capabilities are available.

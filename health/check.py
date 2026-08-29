@@ -30,7 +30,7 @@ BASELINE = ROOT / "health" / "baseline.json"
 REPORT_DIR = ROOT / "health"
 SOURCE_PACKAGE = ROOT / "amonite_welcome"
 DATA = ROOT / "data"
-BUILD = ROOT / "builddir"
+BUILD = ROOT / "builddir" / "amonite-welcome"
 PACKAGE_ROOT = ROOT / "package-root"
 
 THRESHOLDS = {
@@ -164,7 +164,7 @@ def runtime_probe(*, within_release: bool = False) -> dict[str, Any]:
         return {
             "status": "FAILED",
             "category": "runtime",
-            "reason": "builddir/amonite-welcome is missing after prepare",
+            "reason": "builddir/amonite-welcome/amonite-welcome is missing after prepare",
             "environment": env,
             "user_action": "Run: make build",
         }
@@ -370,7 +370,7 @@ def resource_inventory() -> dict[str, Any]:
         "icon_bytes": sum(path.stat().st_size for path in icon_files),
         "gresource_inputs": [
             "data/ui/window.ui",
-            "data/style.css",
+            "data/theme/components.css",
         ],
         "providers": "data/providers.yaml",
         "identity": sorted(path.name for path in DATA.glob("identity*.yaml")),
@@ -413,7 +413,7 @@ def static_checks(*, within_release: bool = False) -> dict[str, Any]:
         if name == "meson_test" and not (BUILD / "build.ninja").exists():
             results[name] = {
                 "status": "SKIPPED",
-                "reason": "builddir missing (release.sh should prepare it)",
+                "reason": "builddir/amonite-welcome missing (release.sh should prepare it)",
             }
             continue
         result = run(command, timeout=180)

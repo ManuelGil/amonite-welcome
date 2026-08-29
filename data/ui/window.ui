@@ -1,8 +1,9 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <interface>
-  <requires lib="gtk" version="4.10"/>
+  <requires lib="gtk" version="4.12"/>
+  <!-- Structure only. Appearance is decided by the CSS classes named here;
+       default-width/height are set at runtime to the canonical preferred size. -->
   <template class="WelcomeWindow" parent="GtkApplicationWindow">
-    <!-- default-width/height are set at runtime to the canonical preferred size -->
     <child type="titlebar">
       <object class="GtkHeaderBar" id="header_bar">
         <property name="show-title-buttons">true</property>
@@ -19,33 +20,27 @@
             <property name="vexpand">true</property>
             <child>
               <object class="GtkScrolledWindow">
+                <property name="css-classes">contents</property>
                 <property name="hscrollbar-policy">never</property>
-                <property name="width-request">184</property>
+                <property name="width-request">190</property>
                 <child>
                   <object class="GtkListBox" id="sidebar">
-                    <property name="css-classes">navigation-sidebar</property>
-                    <signal name="row-selected" handler="on_sidebar_row_selected"/>
                   </object>
                 </child>
               </object>
             </child>
             <child>
-              <object class="GtkSeparator"/>
-            </child>
-            <child>
               <object class="GtkStack" id="stack">
                 <property name="hexpand">true</property>
-                <property name="transition-type">none</property>
+                <property name="transition-type">crossfade</property>
+                <property name="transition-duration">120</property>
               </object>
             </child>
           </object>
         </child>
         <child>
-          <object class="GtkSeparator"/>
-        </child>
-        <child>
           <object class="GtkBox">
-            <property name="css-classes">welcome-footer</property>
+            <property name="css-classes">footer</property>
             <property name="spacing">12</property>
             <child>
               <object class="GtkCheckButton" id="autostart_button">
@@ -57,7 +52,7 @@
             <child>
               <object class="GtkLabel" id="distro_footer_label">
                 <property name="xalign">1</property>
-                <property name="css-classes">dim-label welcome-brand-footer</property>
+                <property name="css-classes">footer-note</property>
               </object>
             </child>
           </object>

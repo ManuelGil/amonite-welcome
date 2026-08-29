@@ -7,7 +7,7 @@ Build-Depends:
  meson (>= 0.64),
  ninja-build,
  pkg-config,
- libgtk-4-dev (>= 4.10),
+ libgtk-4-dev (>= 4.12),
  python3,
  python3-gi,
  python-gi-dev,
@@ -24,7 +24,7 @@ Depends:
  python3,
  python3-gi,
  python3-yaml,
- gir1.2-gtk-4.0,
+ gir1.2-gtk-4.0 (>= 4.12),
 Recommends:
  network-manager-applet | network-manager-gnome,
  x-terminal-emulator,

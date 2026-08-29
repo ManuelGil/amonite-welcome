@@ -40,7 +40,7 @@ def _main() -> int:
     gi.require_version("Gtk", "4.0")
     from gi.repository import Gio
 
-    # Load config alone first - importing main pulls in WelcomeWindow, which
+    # Load config alone first - importing app pulls in the window, which
     # requires the GResource to already be registered (same order as the launcher).
     from amonite_welcome import config
 
@@ -49,9 +49,9 @@ def _main() -> int:
     )
     resource._register()
 
-    from amonite_welcome import main
+    from amonite_welcome import app
 
-    return main.main(pkgdatadir)
+    return app.main(pkgdatadir)
 
 
 if __name__ == "__main__":

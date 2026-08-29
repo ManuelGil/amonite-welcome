@@ -1,0 +1,219 @@
+/* Amonite Welcome - the visual system.
+ *
+ * Colours are never written here. Every colour is an @aw_* token derived at
+ * startup from the running desktop (see amonite_welcome/theme/), so this file
+ * describes structure, rhythm and weight, and the system decides the palette.
+ *
+ * Focus rings are deliberately not restyled: GTK draws the platform focus
+ * indicator and accessibility themes keep their own. What these rules add is a
+ * second, non-colour focus cue, so focus never depends on colour alone.
+ *
+ * Rhythm: 4 / 8 / 12 / 20 / 28 px. Type: 1.35 / 1.05 / 1 / 0.9 em.
+ */
+
+/* ---------------------------------------------------------------- window */
+
+.welcome-window,
+.welcome-window > box {
+  background-color: @aw_bg;
+  color: @aw_fg;
+}
+
+.welcome-window headerbar {
+  background-color: @aw_shell;
+  border-bottom: 1px solid @aw_border;
+  box-shadow: none;
+  min-height: 40px;
+}
+
+.brand-name {
+  font-weight: 700;
+  letter-spacing: -0.01em;
+  color: @aw_fg;
+}
+
+/* ----------------------------------------------------- table of contents */
+
+.contents {
+  background-color: @aw_shell;
+  border-right: 1px solid @aw_border;
+}
+
+.contents list {
+  background-color: transparent;
+  padding: 14px 10px;
+}
+
+.chapter {
+  border-radius: 6px;
+  padding: 7px 8px;
+  min-height: 30px;
+  color: @aw_fg_muted;
+}
+
+.chapter:hover {
+  background-color: @aw_hover;
+  color: @aw_fg;
+}
+
+.chapter:selected,
+.chapter:selected:hover {
+  background-color: @aw_accent_soft;
+  color: @aw_selected_fg;
+  font-weight: 700;
+}
+
+.chapter:focus-visible {
+  background-color: @aw_hover;
+}
+
+/* The number carries the sequence; it stays quiet and monospaced so the
+   titles line up whatever the language does to their length. */
+.chapter-number {
+  font-family: monospace;
+  font-size: 0.85em;
+  color: @aw_fg_faint;
+  min-width: 12px;
+}
+
+.chapter:selected .chapter-number {
+  color: @aw_accent;
+}
+
+/* --------------------------------------------------------------- reading */
+
+.page-shell {
+  background-color: @aw_bg;
+}
+
+.page {
+  padding: 26px 32px 32px;
+}
+
+/* The chapter's name. Large enough to lead, not large enough to shout. */
+.page-title {
+  font-size: 1.35em;
+  font-weight: 700;
+  letter-spacing: -0.015em;
+  color: @aw_fg;
+}
+
+.lead {
+  font-size: 1.05em;
+  line-height: 1.45;
+  color: @aw_fg_muted;
+}
+
+.page-header {
+  padding-bottom: 18px;
+  margin-bottom: 4px;
+  border-bottom: 1px solid @aw_border;
+}
+
+.section {
+  margin-top: 20px;
+}
+
+.section-heading {
+  font-weight: 700;
+  color: @aw_fg;
+}
+
+.section-body {
+  line-height: 1.55;
+  color: @aw_fg_muted;
+}
+
+/* ------------------------------------------------------------ fact table */
+
+/* Dense on purpose: this is reference material, not a set of cards. */
+.fact-table {
+  margin-top: 4px;
+}
+
+/* One width for every table on the page, so the values line up down the
+   whole chapter and not just inside one table. */
+.fact-key {
+  font-size: 0.9em;
+  color: @aw_fg_faint;
+  padding: 4px 0;
+  min-width: 116px;
+}
+
+.fact-value {
+  color: @aw_fg;
+  padding: 4px 0;
+}
+
+/* --------------------------------------------------------------- actions */
+
+/* Pinned under the chapter it belongs to, above the window footer, and on the
+   same axis as the prose it follows. */
+.action-shelf {
+  background-color: @aw_bg;
+  border-top: 1px solid @aw_border;
+}
+
+.action-bar {
+  padding: 12px 32px;
+}
+
+.action-bar > flowboxchild {
+  padding: 0;
+}
+
+button.action {
+  padding: 6px 16px;
+  min-height: 28px;
+  border-radius: 6px;
+  border: 1px solid @aw_border;
+  background-image: none;
+  background-color: @aw_shell;
+  color: @aw_fg;
+  font-weight: 600;
+}
+
+button.action:hover {
+  background-color: @aw_hover;
+}
+
+button.action:active {
+  background-color: @aw_accent_soft;
+}
+
+/* The one step a chapter actually recommends. */
+button.action.suggested-action {
+  background-color: @aw_accent_fill;
+  border-color: @aw_accent_fill;
+  color: @aw_accent_fg;
+}
+
+button.action.suggested-action:hover {
+  background-color: @aw_accent;
+  border-color: @aw_accent;
+}
+
+/* ---------------------------------------------------------------- footer */
+
+.footer {
+  background-color: @aw_shell;
+  border-top: 1px solid @aw_border;
+  padding: 8px 16px;
+}
+
+.footer checkbutton {
+  color: @aw_fg_muted;
+  font-size: 0.92em;
+}
+
+.footer checkbutton check:checked {
+  background-image: none;
+  background-color: @aw_accent_fill;
+  border-color: @aw_accent_fill;
+  color: @aw_accent_fg;
+}
+
+.footer-note {
+  font-size: 0.88em;
+  color: @aw_fg_faint;
+}

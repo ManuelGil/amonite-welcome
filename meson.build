@@ -1,5 +1,5 @@
 project('amonite-welcome',
-  version: '1.1.0',
+  version: '2.0.0',
   license: 'GPL-3.0-or-later',
   meson_version: '>= 0.64.0',
 )
@@ -13,7 +13,7 @@ resource_base_path = '/' + app_id.replace('.', '/')
 gnome = import('gnome')
 python = import('python')
 
-dependency('gtk4', version: '>= 4.10')
+dependency('gtk4', version: '>= 4.12')
 dependency('pygobject-3.0', version: '>= 3.42')
 
 py = python.find_installation('python3', required: true)

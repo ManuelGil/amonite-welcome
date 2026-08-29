@@ -17,6 +17,7 @@ dialogs:
 
 facts:
   distribution: Distribuzione
+  edition: Edizione
   debian_version: Versione Debian
   desktop: Desktop
   session_type: Tipo di sessione
@@ -36,6 +37,11 @@ capabilities:
     unavailable: >
       Le impostazioni di rete non sono disponibili.
       Configurare la rete con gli strumenti di rete del desktop,
+      oppure rivolgersi all'amministratore.
+  software-install:
+    unavailable: >
+      Nessun programma di installazione software è disponibile.
+      Installare le applicazioni con gli strumenti dei pacchetti del sistema,
       oppure rivolgersi all'amministratore.
   system-update:
     unavailable: |

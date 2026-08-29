@@ -2,23 +2,38 @@
 
 pages:
 
-  - title: Willkommen
-    icon: go-home-symbolic
+  - id: welcome
+    title: Willkommen
     description: >-
       Eine Einführung in $distro_name und was Sie von diesem System erwarten können.
     sections:
       - heading: $slogan
         body: >
-          $distro_name ist ein Desktop-Betriebssystem auf Basis von Debian
-          Stable. Debian Stable ändert sich langsam und stellt Pakete bereit,
-          die gemeinsam getestet wurden. Die Installation bleibt minimal,
-          damit Sie hinzufügen können, was Sie brauchen.
+          $distro_name ist ein Desktop-Betriebssystem, das auf Debian Stable
+          aufbaut. Debian liefert den Unterbau, der sich langsam ändert und
+          als Ganzes getestet wird, und $distro_name liefert die
+          Voreinstellungen darauf. Eine Voreinstellung verdient ihren Platz,
+          wenn sie Ihnen eine klare Fähigkeit gibt, und was am ersten Tag
+          nützlich ist, sollte einen Monat später kein Hindernis sein.
+      - heading: Diese Edition
+        requires: [edition_name]
+        body: >
+          Diese Installation ist die Edition $edition_name. Editionen
+          unterscheiden sich in der Erfahrung, die sie anstreben, nicht in
+          Philosophie oder Architektur, deshalb gilt das hier Gelesene auch
+          für die anderen.
       - heading: Die Desktop-Umgebung
         requires: [desktop_env_label]
         body: >
           Diese Installation verwendet $desktop_env_label als
           Desktop-Umgebung. Sie bleibt leicht zu verstehen und anzupassen und
           ist der Teil des Systems, den Sie am häufigsten sehen und ändern.
+      - heading: Voreinstellungen, die Sie ändern können
+        body: >
+          Jede Voreinstellung ist ein Ausgangspunkt, keine Vorschrift. Sie
+          können sie später ersetzen, ohne gegen das System zu arbeiten, und
+          wer an der Tastatur sitzt, entscheidet weiterhin, was der Computer
+          tut.
       - heading: Wofür dieses Handbuch gedacht ist
         body: >
           Dieses Fenster ist eine kurze Einführung, kein Kontrollzentrum. Es
@@ -28,8 +43,8 @@ pages:
           Paketmanager. Wenn ein anderes Werkzeug eine Aufgabe bereits
           übernimmt, verweist dieses Handbuch darauf.
 
-  - title: Erste Schritte
-    icon: task-due-symbolic
+  - id: first-steps
+    title: Erste Schritte
     description: Empfohlene Schritte für die ersten Stunden nach der Installation.
     sections:
       - heading: Mit dem Internet verbinden
@@ -42,27 +57,42 @@ pages:
       - heading: System aktualisieren
         body: >
           Eine Neuinstallation enthält möglicherweise nicht die neuesten
-          Softwareaktualisierungen. Es wird empfohlen, Aktualisierungen zu
-          installieren, bevor Sie weitere Software hinzufügen oder persönliche
-          Daten auf den Computer kopieren. Nutzen Sie unten System
-          aktualisieren.
+          Softwareaktualisierungen. Installieren Sie diese, bevor Sie weitere
+          Software hinzufügen oder persönliche Daten auf den Computer
+          kopieren. Aktuell zu bleiben ist es, was das System stabil,
+          kompatibel und sicher hält. Nutzen Sie unten System aktualisieren.
       - heading: Software installieren
         body: >
           Das Basissystem bleibt klein, bis Sie etwas anderes entscheiden.
           Weitere Anwendungen stammen aus denselben vertrauenswürdigen
-          Softwarequellen wie die Aktualisierungen und werden mit den
-          Standardpaketwerkzeugen des Systems installiert. Öffnen Sie unten die
-          Dokumentation, um zu erfahren, wie.
-      - heading: Dokumentation lesen
-        body: >
-          Dieses Handbuch ist nur ein Ausgangspunkt. Versionshinweise und
-          ausführlichere Anleitungen finden Sie auf der Projektwebsite.
-          Öffnen Sie unten Dokumentation, wenn Sie mehr Details brauchen.
+          Softwarequellen wie die Aktualisierungen. Öffnen Sie unten Software,
+          um sie zu installieren und die Einstellungen anzuwenden, die ein
+          Paket allein nicht einrichtet.
       - heading: Enthaltene Anwendungen entdecken
         body: >
           Das Anwendungsmenü listet die Programme auf, die mit dieser
           Installation enthalten sind. Durchsuchen Sie es, um zu sehen, was
           bereits verfügbar ist.
+      - heading: Machen Sie es zu Ihrem System
+        body: >
+          Wenn das System aktuell ist, ist dies der Moment, Drucker und andere
+          Peripheriegeräte einzurichten, Ihre Online-Konten zu verbinden, das
+          Erscheinungsbild des Desktops anzupassen, die benötigten
+          Barrierefreiheitsfunktionen einzuschalten und jede Voreinstellung zu
+          ersetzen, die nicht zu Ihrer Arbeitsweise passt.
+      - heading: Das System sicher halten
+        body: >
+          Installieren Sie Aktualisierungen regelmäßig und installieren Sie
+          Software nur aus vertrauenswürdigen Quellen: inoffizielle Quellen
+          bringen Wartungs- und Sicherheitsarbeit mit sich, die bei Ihnen
+          bleibt. Bewahren Sie Sicherungskopien von allem auf, was Sie nicht
+          verlieren möchten, und lesen Sie die Dokumentation, bevor Sie eine
+          zusätzliche Softwarequelle aktivieren.
+      - heading: Dokumentation lesen
+        body: >
+          Dieses Handbuch ist nur ein Ausgangspunkt. Versionshinweise und
+          ausführlichere Anleitungen finden Sie auf der Projektwebsite.
+          Öffnen Sie unten Dokumentation, wenn Sie mehr Details brauchen.
     actions:
       - label: Netzwerkverbindungen
         description: Kabelgebundenen oder drahtlosen Netzwerkzugang einrichten.
@@ -70,21 +100,25 @@ pages:
       - label: System aktualisieren
         description: Softwareaktualisierungen der Distribution installieren.
         command: system-update
+        primary: true
+      - label: Software
+        description: Anwendungen installieren und die zugehörigen Einstellungen anwenden.
+        command: software-install
       - label: Dokumentation
         description: Versionshinweise und Anleitungen auf der Projektwebsite öffnen.
         url: $website_url
 
-  - title: Ihr System
-    icon: preferences-system-symbolic
+  - id: system
+    title: Ihr System
     description: Informationen über diese Installation und diesen Computer.
     sections:
       - heading: Zu diesen Angaben
         body: >
           Die Werte unten beschreiben diese Installation und diesen Computer
           so, wie sie waren, als Sie dieses Fenster geöffnet haben. Sie sind
-          nützlich beim Nachschlagen in der Dokumentation oder beim Bitten um
-          Hilfe. Sie werden nicht live aktualisiert. Öffnen Sie diese
-          Anwendung erneut, wenn Sie nach einer Änderung aktuelle Werte
+          nützlich beim Nachschlagen in der Dokumentation und sie gehören in
+          eine Fehlermeldung. Sie werden nicht live aktualisiert. Öffnen Sie
+          diese Anwendung erneut, wenn Sie nach einer Änderung aktuelle Werte
           brauchen.
       - heading: Diese Installation
         data: os_facts
@@ -95,8 +129,8 @@ pages:
         description: Desktop-Einstellungen für Anzeige, Erscheinungsbild und Sitzung öffnen.
         command: desktop-settings
 
-  - title: Hilfe
-    icon: help-browser-symbolic
+  - id: help
+    title: Hilfe
     description: Dokumentation und Orte, an denen Sie Unterstützung erhalten.
     sections:
       - heading: Dokumentation
@@ -110,6 +144,12 @@ pages:
           Support-Einstieg gerichtet werden, den diese Installation
           veröffentlicht. Öffnen Sie ihn, wenn Sie Hilfe über dieses
           Handbuch hinaus brauchen.
+      - heading: Ein Problem melden
+        body: >
+          Eine nützliche Meldung nennt Edition und Version von $distro_name,
+          die Sie verwenden, die Hardware oder virtuelle Maschine, auf der es
+          läuft, und den Schritt, der fehlgeschlagen ist. Ihr System zeigt die
+          meisten dieser Werte an.
     actions:
       - label: Dokumentation
         description: Versionshinweise und Anleitungen auf der Projektwebsite.

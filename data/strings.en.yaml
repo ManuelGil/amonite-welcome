@@ -20,6 +20,7 @@ dialogs:
 
 facts:
   distribution: Distribution
+  edition: Edition
   debian_version: Debian Version
   desktop: Desktop
   session_type: Session Type
@@ -39,6 +40,11 @@ capabilities:
     unavailable: >
       Network settings are not available.
       Configure networking from your desktop's network tools,
+      or ask your administrator.
+  software-install:
+    unavailable: >
+      No software installer is available here.
+      Install applications with the package tools of the system,
       or ask your administrator.
   system-update:
     unavailable: |

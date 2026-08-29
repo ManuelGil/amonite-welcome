@@ -23,9 +23,10 @@ out of git; see `.gitignore`.
 | Handbook prose or actions | `data/pages.en.yaml` first; then translations |
 | UI / dialog strings | `data/strings.<lang>.yaml` (all languages) |
 | Capability providers | `data/providers.yaml` only |
-| New live fact section | `DATA_READERS` in `amonite_welcome/system_info.py` |
+| New live fact section | `DATA_READERS` in `amonite_welcome/services/system_info.py` |
 | Window layout | `data/ui/window.ui` |
-| Spacing / typography | `data/style.css` |
+| Spacing, typography, structure | `data/theme/components.css` |
+| Colour roles | `amonite_welcome/theme/palette.py` (derived from the desktop) |
 | Icons | `data/icons/hicolor/` (Freedesktop application icon) |
 | Menu desktop | `data/amonite-welcome.desktop` (must match identity catalogs) |
 | Autostart template | `data/autostart/amonite-welcome.desktop` (installed to `/etc/xdg/autostart`; default on) |

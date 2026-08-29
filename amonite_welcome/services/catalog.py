@@ -27,7 +27,7 @@ from types import MappingProxyType
 
 import yaml
 
-from amonite_welcome.localeutil import DEFAULT_LANGUAGE, editorial_language
+from amonite_welcome.services.locale import DEFAULT_LANGUAGE, editorial_language
 
 _catalog: Mapping[str, object] = MappingProxyType({})
 

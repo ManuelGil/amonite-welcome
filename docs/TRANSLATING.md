@@ -37,8 +37,8 @@ If a language file does not exist, English loads silently.
 
 ```bash
 make
-LANG=it_IT.UTF-8 builddir/prefix/bin/amonite-welcome
-LANG=de_DE.UTF-8 builddir/prefix/bin/amonite-welcome
+LANG=it_IT.UTF-8 builddir/amonite-welcome/prefix/bin/amonite-welcome
+LANG=de_DE.UTF-8 builddir/amonite-welcome/prefix/bin/amonite-welcome
 ```
 
 ## Shipped languages
@@ -61,6 +61,7 @@ Use consistent wording across handbook actions, capability messages, and UI:
 | Desktop Settings | Capability `desktop-settings` |
 | Network Connections / Network Settings | Capability `network-settings` |
 | Update the System / System Update | Capability `system-update` |
+| Software | Capability `software-install` |
 | Documentation | URL action to project docs |
 | Support | URL action to support channels |
 
@@ -70,7 +71,9 @@ user-visible text.
 Never name a distribution or a desktop environment either. Both arrive at
 runtime: write `$distro_name` and `$desktop_env_label`, never the literal. A
 section that mentions the desktop must keep its `requires: [desktop_env_label]`
-line so it disappears on systems that publish no desktop metadata.
+line so it disappears on systems that publish no desktop metadata. The edition
+works the same way: write `$edition_name` and keep `requires: [edition_name]`,
+so the section disappears on a distribution that publishes a single edition.
 
 ## Translation rules
 
@@ -92,8 +95,8 @@ line so it disappears on systems that publish no desktop metadata.
 
 | Field | Example | Reason |
 | ----- | ------- | ------ |
-| `$placeholders` | `$distro_name`, `$slogan`, `$website_url`, `$forum_url`, `$desktop_env_label` | Filled at runtime |
-| `requires:` lists | `requires: [desktop_env_label]` | Hides the section when the value is missing |
+| `$placeholders` | `$distro_name`, `$slogan`, `$website_url`, `$forum_url`, `$edition_name`, `$desktop_env_label` | Filled at runtime |
+| `requires:` lists | `requires: [desktop_env_label]`, `requires: [edition_name]` | Hides the section when the value is missing |
 | `command:` ids | `package-manager`, `system-update`, … | Must match `providers.yaml` |
 | `data:` ids | `os_facts`, `hardware_facts` | Mapped to fact readers |
 | `icon:` values | `go-home-symbolic` | Sidebar icons |
@@ -137,7 +140,7 @@ files so they match `identity.<lang>.yaml`.
 ```bash
 make
 make verify
-LANG=it_IT.UTF-8 builddir/prefix/bin/amonite-welcome
+LANG=it_IT.UTF-8 builddir/amonite-welcome/prefix/bin/amonite-welcome
 ```
 
 ## Validation

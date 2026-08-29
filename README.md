@@ -39,22 +39,22 @@ make
 Or with Meson directly:
 
 ```bash
-meson setup builddir --prefix "$PWD/builddir/prefix"
-meson compile -C builddir
-meson install -C builddir
+meson setup builddir/amonite-welcome --prefix "$PWD/builddir/amonite-welcome/prefix"
+meson compile -C builddir/amonite-welcome
+meson install -C builddir/amonite-welcome
 ```
 
 Without installing:
 
 ```bash
-meson setup builddir && meson compile -C builddir
-meson devenv -C builddir amonite-welcome
+meson setup builddir/amonite-welcome && meson compile -C builddir/amonite-welcome
+meson devenv -C builddir/amonite-welcome amonite-welcome
 ```
 
 ## Run
 
 ```bash
-builddir/prefix/bin/amonite-welcome
+builddir/amonite-welcome/prefix/bin/amonite-welcome
 ```
 
 ## Test and validate
@@ -75,8 +75,8 @@ make release
 
 | Path | Role |
 | ---- | ---- |
-| `amonite_welcome/` | Application |
-| `data/` | Identity, providers, handbook, UI, icons |
+| `amonite_welcome/` | Application (`ui/` presentation, `services/` platform, `theme/` visual system) |
+| `data/` | Identity, providers, handbook, UI, theme, icons |
 | `debian/` | Native Debian packaging |
 | `docs/` | Permanent maintainer documentation |
 | `packaging/` | Release validation and packaging pipeline |

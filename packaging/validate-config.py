@@ -26,7 +26,7 @@ OKS: list[str] = []
 
 # The authoring vocabulary is defined once, by the runtime identity module.
 sys.path.insert(0, str(ROOT))
-from amonite_welcome.identity import (  # noqa: E402
+from amonite_welcome.services.identity import (  # noqa: E402
     AUTHORING_FIELDS,
     AUTHORING_URL_FIELDS,
     DESKTOP_FIELDS,
@@ -47,7 +47,7 @@ DESKTOP_NAMES = re.compile(
 # data/providers.yaml and actions.py are the capability registry and its
 # resolver: provider executables and terminal argv styles are their vocabulary,
 # not desktop assumptions, so they are exempt from the desktop-name rule.
-DESKTOP_NAME_EXEMPT = ("data/providers.yaml", "amonite_welcome/actions.py")
+DESKTOP_NAME_EXEMPT = ("data/providers.yaml", "amonite_welcome/services/providers.py")
 
 PLACEHOLDER = re.compile(r"\$[a-z_]+")
 FORBIDDEN_IN_USER_TEXT = re.compile(
@@ -101,7 +101,7 @@ def _leaf_strings(node: object, prefix: str = "") -> list[tuple[str, str]]:
 
 
 def validate_meson() -> None:
-    for name in ("meson.build", "data/meson.build", "amonite_welcome/meson.build"):
+    for name in _REQUIRED_MESON_FILES:
         path = ROOT / name
         if not path.is_file():
             fail(f"missing {name}")
@@ -282,9 +282,16 @@ VERIFIED_TERMINAL_STYLES = {
 RECORDED_PROVIDERS = {
     "desktop-settings": {
         "xfce4-settings-manager": "settings program of the desktop environment editions install",
+        "systemsettings": "settings program of the Plasma editions install, which also holds their network configuration",
     },
     "network-settings": {
         "nm-connection-editor": "connection editor shipped with the network applet",
+    },
+    "software-install": {
+        "amonite-center": (
+            "the application this system installs beside Welcome to install "
+            "software and apply the settings that go with it"
+        ),
     },
 }
 
@@ -339,7 +346,7 @@ def validate_capability_providers() -> None:
 
 def validate_terminal_styles() -> None:
     """Every declared terminal keeps the argv shape that was verified for it."""
-    from amonite_welcome import actions
+    from amonite_welcome.services import providers as actions
 
     raw = _load_yaml(DATA / "providers.yaml")
     if not isinstance(raw, dict):
@@ -402,7 +409,7 @@ def validate_terminal_styles() -> None:
 
 def validate_terminal_argv_shapes() -> None:
     """Each argv shape stays executable: tokens separate, strings shell-quoted."""
-    from amonite_welcome import actions
+    from amonite_welcome.services import providers as actions
 
     before = len(ERRORS)
     for style, builder in sorted(actions._ARGV_STYLES.items()):
@@ -461,7 +468,7 @@ def _handbook_structure(doc: Mapping) -> list[dict]:
     for page in doc.get("pages") or []:
         structure.append(
             {
-                "icon": page.get("icon", ""),
+                "id": page.get("id", ""),
                 "section_data": [
                     section.get("data", "") for section in page.get("sections") or []
                 ],
@@ -469,7 +476,11 @@ def _handbook_structure(doc: Mapping) -> list[dict]:
                     list(section.get("requires") or []) for section in page.get("sections") or []
                 ],
                 "actions": [
-                    (action.get("command", ""), "url" in action)
+                    (
+                        action.get("command", ""),
+                        "url" in action,
+                        bool(action.get("primary", False)),
+                    )
                     for action in page.get("actions") or []
                 ],
             }
@@ -933,6 +944,9 @@ _REQUIRED_MESON_FILES = (
     "data/meson.build",
     "data/autostart/meson.build",
     "amonite_welcome/meson.build",
+    "amonite_welcome/services/meson.build",
+    "amonite_welcome/ui/meson.build",
+    "amonite_welcome/theme/meson.build",
 )
 
 
@@ -1057,7 +1071,7 @@ def validate_no_hardcoded_desktop() -> None:
     """No runtime module or user-facing catalog names a desktop environment."""
     targets = _scan_files(
         (
-            "amonite_welcome/*.py",
+            "amonite_welcome/**/*.py",
             "data/*.yaml",
             "data/*.desktop",
             "data/autostart/*.desktop",
@@ -1124,7 +1138,7 @@ def validate_no_duplicated_metadata() -> None:
 
     # Runtime modules and every localized catalog must reach this data through
     # identity, never restate it.
-    targets = _scan_files(("amonite_welcome/*.py", "data/*.yaml"))
+    targets = _scan_files(("amonite_welcome/**/*.py", "data/*.yaml"))
     duplicates: list[str] = []
     for path in targets:
         relative = path.relative_to(ROOT).as_posix()
@@ -1173,9 +1187,83 @@ def validate_no_declared_distribution() -> None:
         ok("identity catalogs declare no distribution or desktop fields")
 
 
+_DEFINE_COLOR = re.compile(r"@define-color\s+(\w+)")
+_LITERAL_COLOUR = re.compile(r"#[0-9a-fA-F]{3,8}\b|\brgba?\(")
+
+# Tokens the theme layer derives from the running desktop. The stylesheet may
+# use these names and no others; their values are never written down here.
+_SEMANTIC_TOKENS = frozenset(
+    {
+        "aw_bg",
+        "aw_shell",
+        "aw_hover",
+        "aw_fg",
+        "aw_fg_muted",
+        "aw_fg_faint",
+        "aw_border",
+        "aw_accent",
+        "aw_accent_fill",
+        "aw_accent_fg",
+        "aw_accent_soft",
+        "aw_selected_fg",
+    }
+)
+
+
+def validate_theme() -> None:
+    """Components name colours semantically; no palette is written on disk.
+
+    The values come from the desktop at startup (amonite_welcome/theme), so a
+    literal colour or an unknown token here would be an identity Welcome
+    invented for itself.
+    """
+    components = ROOT / "data" / "theme" / "components.css"
+    if not components.is_file():
+        fail("missing data/theme/components.css")
+        return
+    text = components.read_text(encoding="utf-8")
+
+    literals: list[str] = []
+    for number, line in enumerate(text.splitlines(), 1):
+        stripped = line.strip()
+        if stripped.startswith(("/*", "*")):
+            continue
+        if _LITERAL_COLOUR.search(stripped):
+            literals.append(f"components.css:{number}: literal colour {stripped}")
+    for literal in literals:
+        fail(literal)
+
+    defined = _DEFINE_COLOR.findall(text)
+    if defined:
+        fail(f"components.css must not define colours: {', '.join(sorted(set(defined)))}")
+
+    used = set(re.findall(r"@(aw_\w+)", text))
+    unknown = sorted(used - _SEMANTIC_TOKENS)
+    if unknown:
+        fail(f"components.css uses undefined tokens: {', '.join(unknown)}")
+    unused = sorted(_SEMANTIC_TOKENS - used)
+    if unused:
+        fail(f"derived tokens no component uses: {', '.join(unused)}")
+
+    stale = sorted(
+        path.name
+        for path in (ROOT / "data" / "theme").glob("*.css")
+        if path.name != "components.css"
+    )
+    if stale:
+        fail(f"data/theme must hold components.css only, found: {', '.join(stale)}")
+
+    if not literals and not defined and not unknown and not unused and not stale:
+        ok(
+            f"theme: {len(used)} semantic tokens used, no literal colours, "
+            f"no palette on disk"
+        )
+
+
 def main() -> int:
     print("Configuration and internationalization validation")
     validate_meson()
+    validate_theme()
     validate_identity()
     validate_build_identity()
     validate_source_visibility()

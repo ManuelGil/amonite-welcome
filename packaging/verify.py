@@ -5,7 +5,7 @@ Run after building (`make build` or meson install). Checks packaging metadata,
 YAML loading, locale resolution, system facts, and GTK window construction
 without opening external programs or URLs.
 
-Reads the install prefix under builddir/ (or build/). Writes only under the
+Reads the install prefix under builddir/amonite-welcome/ (or build/). Writes only under the
 system temporary directory - never into the source tree.
 """
 
@@ -39,7 +39,7 @@ _ICON_PNG_SIZES = (
 def _discover_prefix() -> Path:
     """Locate an install tree under builddir/prefix or DESTDIR/package-root."""
     candidates = (
-        ROOT / "builddir" / "prefix",
+        ROOT / "builddir" / "amonite-welcome" / "prefix",
         ROOT / "build" / "prefix",
         ROOT / "package-root" / "usr" / "local",
         ROOT / "package-root" / "usr",
@@ -48,7 +48,7 @@ def _discover_prefix() -> Path:
     for candidate in candidates:
         if (candidate / marker).exists():
             return candidate
-    return ROOT / "builddir" / "prefix"
+    return ROOT / "builddir" / "amonite-welcome" / "prefix"
 
 
 PREFIX = _discover_prefix()
@@ -60,9 +60,26 @@ MENU_DESKTOP = PREFIX / "share" / "applications" / "amonite-welcome.desktop"
 
 EXPECTED_PAGE_COUNT = 4
 
+# Semantic colour roles the stylesheet consumes. Kept in step with
+# packaging/validate-config.py, which checks the same names statically.
+_SEMANTIC_TOKENS = {
+    "aw_bg",
+    "aw_shell",
+    "aw_hover",
+    "aw_fg",
+    "aw_fg_muted",
+    "aw_fg_faint",
+    "aw_border",
+    "aw_accent",
+    "aw_accent_fill",
+    "aw_accent_fg",
+    "aw_accent_soft",
+    "aw_selected_fg",
+}
+
 GRESOURCE_PATHS = (
     "/org/amonite/Welcome/ui/window.ui",
-    "/org/amonite/Welcome/style.css",
+    "/org/amonite/Welcome/theme/components.css",
 )
 
 LOCALE_SCENARIOS = (
@@ -150,8 +167,10 @@ def require_build() -> None:
     if missing:
         fail(
             "Install prefix incomplete. Build and install first, for example:\n"
-            "  meson setup builddir --prefix \"$PWD/builddir/prefix\"\n"
-            "  meson compile -C builddir && meson install -C builddir\n"
+            "  meson setup builddir/amonite-welcome "
+            "--prefix \"$PWD/builddir/amonite-welcome/prefix\"\n"
+            "  meson compile -C builddir/amonite-welcome && "
+            "meson install -C builddir/amonite-welcome\n"
             "or: make build\n"
             "Missing:\n  "
             + "\n  ".join(str(path) for path in missing)
@@ -198,8 +217,8 @@ def verify_config() -> None:
 
 
 def verify_identity_and_pages() -> tuple[dict[str, str], list]:
-    from amonite_welcome import identity as identity_api
-    from amonite_welcome.identity import IDENTITY_FIELDS, load_identity
+    from amonite_welcome.services import identity as identity_api
+    from amonite_welcome.services.identity import IDENTITY_FIELDS, load_identity
 
     base = yaml.safe_load((PKGDATA / "identity.base.yaml").read_text(encoding="utf-8"))
     if not isinstance(base, dict) or "desktop_id" not in base:
@@ -265,9 +284,9 @@ def verify_identity_and_pages() -> tuple[dict[str, str], list]:
             fail(f"unexpected damaged distro_name: {resilient['distro_name']!r}")
     ok("distribution identity follows /etc/os-release")
 
-    from amonite_welcome.pages import load_pages_for_locale
-    from amonite_welcome.strings import load_strings_for_locale
-    from amonite_welcome import strings as i18n
+    from amonite_welcome.content import load_pages_for_locale
+    from amonite_welcome.services.catalog import load_strings_for_locale
+    from amonite_welcome.services import catalog as i18n
 
     i18n.bind(load_strings_for_locale(str(PKGDATA), language="en"))
     pages = load_pages_for_locale(str(PKGDATA), identity, language="en")
@@ -289,7 +308,7 @@ def verify_identity_and_pages() -> tuple[dict[str, str], list]:
 
 def verify_project_identity() -> None:
     """Project authoring loads declaratively and reaches the merged identity."""
-    from amonite_welcome.identity import (
+    from amonite_welcome.services.identity import (
         AUTHORING_FIELDS,
         AUTHORING_URL_FIELDS,
         IdentityError,
@@ -332,8 +351,8 @@ def verify_project_identity() -> None:
 
 def verify_desktop_identity() -> None:
     """Desktop metadata comes from the distribution and degrades to nothing."""
-    from amonite_welcome.identity import load_desktop_identity, load_identity
-    from amonite_welcome.pages import load_pages_for_locale
+    from amonite_welcome.services.identity import load_desktop_identity, load_identity
+    from amonite_welcome.content import load_pages_for_locale
 
     with tempfile.TemporaryDirectory() as tmp:
         tmp_path = Path(tmp)
@@ -423,8 +442,8 @@ def verify_desktop_identity() -> None:
 
 
 def verify_error_handling() -> None:
-    from amonite_welcome.identity import IdentityError, load_identity
-    from amonite_welcome.pages import PagesError, load_pages
+    from amonite_welcome.services.identity import IdentityError, load_identity
+    from amonite_welcome.content import PagesError, load_pages
 
     with tempfile.TemporaryDirectory() as tmp:
         tmp_path = Path(tmp)
@@ -453,7 +472,7 @@ def verify_error_handling() -> None:
             fail("empty pages list should raise PagesError")
 
         bad_yaml = Path(tmp) / "broken.yaml"
-        bad_yaml.write_text("pages:\n  - title: x\n    sections: bad\n", encoding="utf-8")
+        bad_yaml.write_text("pages:\n  - id: x\n    title: x\n    sections: bad\n", encoding="utf-8")
         try:
             load_pages(str(bad_yaml))
         except PagesError:
@@ -463,7 +482,7 @@ def verify_error_handling() -> None:
 
         unknown_command = Path(tmp) / "unknown-command.yaml"
         unknown_command.write_text(
-            "pages:\n  - title: x\n    actions:\n      - label: x\n        command: not-a-command\n",
+            "pages:\n  - id: x\n    title: x\n    actions:\n      - label: x\n        command: not-a-command\n",
             encoding="utf-8",
         )
         try:
@@ -475,7 +494,7 @@ def verify_error_handling() -> None:
 
         unknown_data = Path(tmp) / "unknown-data.yaml"
         unknown_data.write_text(
-            "pages:\n  - title: x\n    sections:\n      - heading: h\n        data: not-a-source\n",
+            "pages:\n  - id: x\n    title: x\n    sections:\n      - heading: h\n        data: not-a-source\n",
             encoding="utf-8",
         )
         try:
@@ -486,7 +505,7 @@ def verify_error_handling() -> None:
             fail("unknown data source should raise PagesError")
 
         # Security regressions: URL schemes and autostart field injection.
-        from amonite_welcome.identity import (
+        from amonite_welcome.services.identity import (
             is_safe_web_url,
             load_os_identity,
             sanitize_web_url,
@@ -513,7 +532,7 @@ def verify_error_handling() -> None:
             'NAME="Hostile"\nHOME_URL="file:///etc/passwd"\nSUPPORT_URL="javascript:alert(1)"\n',
             encoding="utf-8",
         )
-        from amonite_welcome.identity import read_metadata_file
+        from amonite_welcome.services.identity import read_metadata_file
 
         read_metadata_file.cache_clear()
         cleaned = load_os_identity(str(hostile))
@@ -526,7 +545,7 @@ def verify_error_handling() -> None:
 
         evil_pages = Path(tmp) / "evil-url.yaml"
         evil_pages.write_text(
-            "pages:\n  - title: x\n    actions:\n"
+            "pages:\n  - id: x\n    title: x\n    actions:\n"
             "      - label: x\n        url: file:///etc/passwd\n",
             encoding="utf-8",
         )
@@ -539,7 +558,7 @@ def verify_error_handling() -> None:
 
         degraded = Path(tmp) / "degraded-url.yaml"
         degraded.write_text(
-            "pages:\n  - title: x\n    sections:\n      - heading: h\n        body: b\n"
+            "pages:\n  - id: x\n    title: x\n    sections:\n      - heading: h\n        body: b\n"
             "    actions:\n      - label: Docs\n        url: $website_url\n",
             encoding="utf-8",
         )
@@ -551,9 +570,9 @@ def verify_error_handling() -> None:
             fail("empty substituted website_url must omit the URL-only action")
         ok("empty website_url degrades by omitting URL-only actions")
 
-        from amonite_welcome import autostart as autostart_mod
-        from amonite_welcome import identity as identity_api
-        from amonite_welcome.identity import load_identity
+        from amonite_welcome.services import autostart as autostart_mod
+        from amonite_welcome.services import identity as identity_api
+        from amonite_welcome.services.identity import load_identity
 
         identity_api.bind(load_identity(str(PKGDATA), language="en"))
         injected = autostart_mod._format_entry(
@@ -587,8 +606,8 @@ for variable in ("LANG", "LC_ALL", "LC_MESSAGES", "LANGUAGE"):
     os.environ.pop(variable, None)
 os.environ.update({env_overrides!r})
 
-from amonite_welcome.identity import load_identity
-from amonite_welcome.pages import load_pages_for_locale
+from amonite_welcome.services.identity import load_identity
+from amonite_welcome.content import load_pages_for_locale
 
 identity = load_identity({pkgdatadir!r})
 pages = load_pages_for_locale({pkgdatadir!r}, identity)
@@ -643,8 +662,8 @@ def verify_locale_resolution() -> None:
 
 
 def verify_editorial_languages(identity: dict[str, str]) -> None:
-    from amonite_welcome.identity import load_identity
-    from amonite_welcome.pages import find_pages_path, load_pages_for_locale
+    from amonite_welcome.services.identity import load_identity
+    from amonite_welcome.content import find_pages_path, load_pages_for_locale
 
     pkgdatadir = str(PKGDATA)
     languages = discover_editorial_languages()
@@ -694,9 +713,9 @@ def verify_editorial_languages(identity: dict[str, str]) -> None:
 
 
 def verify_system_info() -> None:
-    from amonite_welcome import system_info
-    from amonite_welcome.strings import load_strings_for_locale
-    from amonite_welcome import strings as i18n
+    from amonite_welcome.services import system_info
+    from amonite_welcome.services.catalog import load_strings_for_locale
+    from amonite_welcome.services import catalog as i18n
 
     i18n.bind(load_strings_for_locale(str(PKGDATA), language="en"))
 
@@ -719,14 +738,14 @@ def verify_system_info() -> None:
 def verify_capability_resolution() -> None:
     os.environ["AMONITE_WELCOME_PKGDATADIR"] = str(PKGDATA)
 
-    from amonite_welcome import strings as i18n
-    from amonite_welcome.actions import (
+    from amonite_welcome.services import catalog as i18n
+    from amonite_welcome.services.providers import (
         known_capabilities,
         launch,
         providers,
         reload_registry,
     )
-    from amonite_welcome.strings import load_strings_for_locale
+    from amonite_welcome.services.catalog import load_strings_for_locale
 
     i18n.bind(load_strings_for_locale(str(PKGDATA), language="en"))
     reload_registry()
@@ -739,6 +758,7 @@ def verify_capability_resolution() -> None:
         "system-update",
         "desktop-settings",
         "network-settings",
+        "software-install",
     }
     caps = known_capabilities()
     if caps != expected:
@@ -828,7 +848,7 @@ def _terminal_style_probes() -> list[tuple[str, str, bool]]:
     alternatives symlink, which is the only way such a terminal is ever
     selected.
     """
-    from amonite_welcome import actions
+    from amonite_welcome.services import providers as actions
 
     declared = dict(actions._terminal_declarations())
     probes: list[tuple[str, str, bool]] = []
@@ -852,7 +872,7 @@ def _run_terminal_probe(
     bindir: Path, marker: Path, terminal: str, body: str, alternative: str | None
 ) -> tuple[list[str] | None, str | None, str]:
     """Install a stub terminal, resolve argv against it, and run that argv."""
-    from amonite_welcome import actions
+    from amonite_welcome.services import providers as actions
 
     original_path = os.environ.get("PATH", "")
     _write_stub(bindir, terminal, body)
@@ -924,8 +944,8 @@ def verify_capability_failure_modes() -> None:
     One case per contract, each ending either in a launchable argv or in a
     message that names no executable.
     """
-    from amonite_welcome import actions
-    from amonite_welcome.actions import CapabilityUnavailableError, RegistryError
+    from amonite_welcome.services import providers as actions
+    from amonite_welcome.services.providers import CapabilityUnavailableError, RegistryError
 
     original_path = os.environ.get("PATH", "")
     checked: list[str] = []
@@ -1038,7 +1058,7 @@ def verify_capability_failure_modes() -> None:
     ok(f"capability failure modes degrade safely ({', '.join(checked)})")
 def verify_capabilities_diagnostic() -> None:
     """``--capabilities`` reports the system without launching anything."""
-    from amonite_welcome import actions
+    from amonite_welcome.services import providers as actions
 
     launcher = BINDIR / "amonite-welcome"
     # The installed launcher resolves its data directory from the prefix it was
@@ -1103,8 +1123,9 @@ def verify_action_visibility() -> None:
     The same handbook is presented twice: once with a provider installed and
     once without, which is what a user does by installing or removing one.
     """
-    from amonite_welcome import actions
-    from amonite_welcome.pages import Action, visible_actions
+    from amonite_welcome.services import providers as actions
+    from amonite_welcome.content import Action
+    from amonite_welcome.services.capabilities import visible_actions
 
     capability = "desktop-settings"
     provider = actions.providers(capability)[0]
@@ -1140,8 +1161,8 @@ def verify_capability_launchability() -> None:
     Debian keeps package management programs there; a capability that resolves
     for the maintainer must not vanish for the user because of it.
     """
-    from amonite_welcome import actions
-    from amonite_welcome.actions import CapabilityUnavailableError
+    from amonite_welcome.services import providers as actions
+    from amonite_welcome.services.providers import CapabilityUnavailableError
 
     resolvable: dict[str, list[str]] = {}
     for capability in sorted(actions.known_capabilities()):
@@ -1177,6 +1198,86 @@ def verify_capability_launchability() -> None:
         )
     else:
         ok("no capability provider is installed on this system (skipped)")
+
+
+def verify_theme_palette() -> None:
+    """The palette follows the desktop and stays readable whatever it says.
+
+    Derivation is checked against the colours real themes publish and against
+    input designed to be unusable, because a distribution's accent is not a
+    promise of contrast and Welcome still has to be legible on it.
+    """
+    from amonite_welcome.theme import palette
+
+    scenarios = {
+        "light desktop": palette.SystemColours(
+            "#ffffff", "#fafafa", "#3d3d3d", "#e95420", "#ffffff", "#cccccc"
+        ),
+        "dark desktop": palette.SystemColours(
+            "#272727", "#2c2c2c", "#f7f7f7", "#e95420", "#ffffff", "#131313"
+        ),
+        "blue desktop": palette.SystemColours(
+            "#ffffff", "#f6f5f4", "#2e3436", "#3584e4", "#ffffff", "#cdc7c2"
+        ),
+        "unreadable desktop": palette.SystemColours(
+            "#ffffff", "#fefefe", "#f2f2f2", "#ffff00", "#fbfbfb", "#ffffff"
+        ),
+        "built-in light": palette.FALLBACK_LIGHT,
+        "built-in dark": palette.FALLBACK_DARK,
+    }
+    for name, colours in scenarios.items():
+        tokens = palette.derive(colours)
+        missing = _SEMANTIC_TOKENS - set(tokens)
+        if missing:
+            fail(f"{name}: palette is missing {', '.join(sorted(missing))}")
+        unreadable = palette.unreadable_pairs(tokens)
+        if unreadable:
+            detail = ", ".join(f"{f} on {b} {r:.2f}:1" for f, b, r in unreadable)
+            fail(f"{name}: derived palette is not readable ({detail})")
+
+    # A usable accent is kept as it is; an unusable one is moved, not replaced.
+    kept = palette.derive(scenarios["blue desktop"])
+    if palette.contrast(kept["aw_accent_fill"], kept["aw_bg"]) >= palette.MIN_TEXT_CONTRAST:
+        if kept["aw_accent"] != "#3584e4":
+            fail("a readable accent must be used unchanged")
+    hostile = palette.derive(scenarios["unreadable desktop"])
+    if hostile["aw_accent"] == "#ffff00":
+        fail("an unreadable accent must be adjusted before it is used")
+    if palette.contrast(hostile["aw_accent"], hostile["aw_bg"]) < palette.MIN_TEXT_CONTRAST:
+        fail("adjusted accent is still unreadable")
+
+    # Light and dark come from one derivation, not two hand-written palettes.
+    light = palette.derive(palette.FALLBACK_LIGHT)
+    dark = palette.derive(palette.FALLBACK_DARK)
+    if set(light) != set(dark):
+        fail("light and dark palettes expose different tokens")
+    if palette.is_dark(light["aw_bg"]) or not palette.is_dark(dark["aw_bg"]):
+        fail("appearance is not reflected in the derived background")
+
+    ok(
+        f"palette derives from the desktop and holds "
+        f"{palette.MIN_TEXT_CONTRAST}:1 in {len(scenarios)} scenarios"
+    )
+
+
+def verify_theme_sources() -> None:
+    """Identity is read, never invented, and the override is a single file."""
+    from amonite_welcome.theme import system
+
+    if system.ansi_accent({"ANSI_COLOR": "1;31"}) != "#aa0000":
+        fail("os-release ANSI_COLOR is not read as an accent")
+    if system.ansi_accent({}) is not None or system.ansi_accent({"ANSI_COLOR": "0"}) is not None:
+        fail("a missing or unusable ANSI_COLOR must yield no accent")
+
+    theme_source = (ROOT / "amonite_welcome" / "theme").glob("*.py")
+    text = "\n".join(path.read_text(encoding="utf-8") for path in sorted(theme_source))
+    for forbidden in ("subprocess", "os.system", "eval(", "exec(", "Popen"):
+        if forbidden in text:
+            fail(f"theme layer must not {forbidden}")
+    # The override lives at one fixed path inside the installation.
+    if 'os.path.join(pkgdatadir, _OVERRIDE_NAME)' not in text:
+        fail("the distribution override must resolve inside pkgdatadir")
+    ok("visual identity is read from the desktop; override is theme/distro.css")
 
 
 def verify_desktop_files(identity: dict[str, str]) -> None:
@@ -1252,8 +1353,8 @@ def verify_gtk_application(identity: dict[str, str], pages: list) -> None:
 
     resource._register()
 
-    from amonite_welcome.actions import available as capability_available
-    from amonite_welcome.window import WelcomeWindow
+    from amonite_welcome.services.providers import available as capability_available
+    from amonite_welcome.ui.window import WelcomeWindow
 
     warnings: list[str] = []
     hidden_capabilities: set[str] = set()
@@ -1275,8 +1376,8 @@ def verify_gtk_application(identity: dict[str, str], pages: list) -> None:
             context.iteration(False)
 
     def on_activate(application):
-        from amonite_welcome import identity as identity_api
-        from amonite_welcome import strings as i18n
+        from amonite_welcome.services import identity as identity_api
+        from amonite_welcome.services import catalog as i18n
 
         identity_api.bind(identity)
         window = WelcomeWindow(pages, identity, application=application)
@@ -1289,13 +1390,17 @@ def verify_gtk_application(identity: dict[str, str], pages: list) -> None:
         if window.get_title() != f"{identity['distro_name']} {identity['app_name']}":
             fail(f"window title: {window.get_title()!r}")
         default_width, default_height = window.get_default_size()
-        if (default_width, default_height) != (960, 700):
+        if (default_width, default_height) != (940, 660):
             fail(
-                f"preferred default size expected 960x700, "
+                f"preferred default size expected 940x660, "
                 f"got {default_width}x{default_height}"
             )
         # GTK4 has no get_size_request(); confirm the source sets the floor.
-        window_source = (ROOT / "amonite_welcome" / "window.py").read_text(encoding="utf-8")
+        window_source = (ROOT / "amonite_welcome" / "ui" / "window.py").read_text(encoding="utf-8")
+        ui_source = "\n".join(
+            path.read_text(encoding="utf-8")
+            for path in sorted((ROOT / "amonite_welcome" / "ui").glob("*.py"))
+        )
         if "set_size_request(_MIN_WIDTH, _MIN_HEIGHT)" not in window_source and (
             "set_size_request(800, 600)" not in window_source
         ):
@@ -1310,7 +1415,7 @@ def verify_gtk_application(identity: dict[str, str], pages: list) -> None:
         ):
             if forbidden in window_source:
                 fail(f"window.py must not contain platform sizing heuristic: {forbidden}")
-        ok("canonical preferred size 960x700; minimum 800x600; no monitor heuristics")
+        ok("canonical preferred size 940x660; minimum 800x600; no monitor heuristics")
         if window.distro_footer_label.get_label() != identity["release_label"]:
             fail(f"footer label: {window.distro_footer_label.get_label()!r}")
         if window.sidebar.get_row_at_index(len(pages) - 1) is None:
@@ -1346,7 +1451,7 @@ def verify_gtk_application(identity: dict[str, str], pages: list) -> None:
             for css_class, expected in (
                 ("page-title", Gtk.AccessibleRole.HEADING),
                 ("section-heading", Gtk.AccessibleRole.HEADING),
-                ("page-description", Gtk.AccessibleRole.LABEL),
+                ("lead", Gtk.AccessibleRole.LABEL),
                 ("section-body", Gtk.AccessibleRole.LABEL),
             ):
                 for label in labels_with_class(page_widget, css_class):
@@ -1359,28 +1464,45 @@ def verify_gtk_application(identity: dict[str, str], pages: list) -> None:
                         )
         if roles_checked < len(pages):
             fail(f"accessible roles were not observed on the built window ({roles_checked})")
-        if 'f"{label}: {value}"' not in window_source:
+        if 'f"{key}: {value}"' not in ui_source:
             fail("fact values must expose paired accessible labels")
-        if "grab_focus()" not in window_source:
+        if "grab_focus()" not in ui_source:
             fail("sidebar must receive initial keyboard focus")
-        if "Gtk.AlertDialog" not in window_source:
+        if "Gtk.AlertDialog" not in ui_source:
             fail("errors must use Gtk.AlertDialog for accessible dialogs")
-        css_text = (ROOT / "data" / "style.css").read_text(encoding="utf-8")
+        # Roles are construct-only in GTK4: a late assignment silently reaches
+        # every widget of the class. No presentation module may make one.
+        if "set_accessible_role(" in ui_source:
+            fail("accessible roles must be passed to the constructor, never assigned")
+        css_text = "\n".join(
+            path.read_text(encoding="utf-8")
+            for path in sorted((ROOT / "data" / "theme").glob("*.css"))
+        )
         for forbidden_css in ("outline:", "outline-style:", "outline-width:", "outline-color:", "max-width:"):
             if forbidden_css in css_text:
                 fail(f"custom CSS must not use unsupported/overriding property {forbidden_css}")
 
-        def find_action_lists(widget):
+        def find_action_bars(widget):
             found = []
-            if isinstance(widget, Gtk.ListBox) and "action-list" in (
+            if isinstance(widget, Gtk.FlowBox) and "action-bar" in (
                 widget.get_css_classes() or []
             ):
                 found.append(widget)
             child = widget.get_first_child() if hasattr(widget, "get_first_child") else None
             while child is not None:
-                found.extend(find_action_lists(child))
+                found.extend(find_action_bars(child))
                 child = child.get_next_sibling()
             return found
+
+        def buttons_in(bar):
+            buttons = []
+            child = bar.get_first_child()
+            while child is not None:
+                inner = child.get_first_child() if isinstance(child, Gtk.FlowBoxChild) else child
+                if isinstance(inner, Gtk.Button):
+                    buttons.append(inner)
+                child = child.get_next_sibling()
+            return buttons
 
         # Keyboard workflow: sidebar → pages → actions → checkbox (no mouse).
         # Do not emit row-activated here: that would launch real providers.
@@ -1396,10 +1518,10 @@ def verify_gtk_application(identity: dict[str, str], pages: list) -> None:
             window.sidebar.select_row(row)
             row.grab_focus()
             pump_events()
-            if window.stack.get_visible_child_name() != pages[index].title:
+            if window.stack.get_visible_child_name() != pages[index].id:
                 fail(f"keyboard navigation failed for page {pages[index].title!r}")
             child = window.stack.get_visible_child()
-            action_lists = find_action_lists(child) if child is not None else []
+            action_lists = find_action_bars(child) if child is not None else []
             # The window offers an action only when this system can carry it
             # out. Expectations are derived from the same contract, not from
             # the window, so a capability that silently stops being checked
@@ -1421,30 +1543,38 @@ def verify_gtk_application(identity: dict[str, str], pages: list) -> None:
                     f"page {pages[index].title!r}: expected "
                     f"{1 if expected_actions else 0} action list(s), found {len(action_lists)}"
                 )
-            for actions in action_lists:
-                if not actions.get_focusable():
-                    fail("action list must be focusable")
+            for bar in action_lists:
                 pages_with_actions += 1
-                for action_index, _action in enumerate(expected_actions):
-                    action_row = actions.get_row_at_index(action_index)
-                    if action_row is None or not action_row.get_focusable():
+                buttons = buttons_in(bar)
+                if len(buttons) != len(expected_actions):
+                    fail(
+                        f"page {pages[index].title!r}: {len(buttons)} action "
+                        f"button(s) for {len(expected_actions)} available action(s)"
+                    )
+                for button, action in zip(buttons, expected_actions):
+                    if button.get_label() != action.label:
                         fail(
-                            f"action row {action_index} on "
-                            f"{pages[index].title!r} must be focusable"
+                            f"action button label {button.get_label()!r} "
+                            f"does not match {action.label!r}"
                         )
-                    action_row.grab_focus()
+                    if not button.get_focusable():
+                        fail(f"action {action.label!r} must be focusable")
+                    if action.primary and "suggested-action" not in button.get_css_classes():
+                        fail(f"recommended action {action.label!r} is not marked")
+                    button.grab_focus()
                     pump_events()
-                    if window.get_focus() is None:
-                        fail(
-                            f"focus lost after focusing action on "
-                            f"{pages[index].title!r}"
-                        )
+                    if window.get_focus() is not button:
+                        fail(f"action {action.label!r} did not take keyboard focus")
         window.autostart_button.grab_focus()
         pump_events()
         if window.get_focus() is not window.autostart_button:
             fail("autostart checkbox did not accept keyboard focus")
         # AlertDialog is GTK-owned; exercise presentation once without launching apps.
-        window._show_error("Accessibility probe", "Dialog focus is GTK-managed.")
+        Gtk.AlertDialog(
+            message="Accessibility probe",
+            detail="Dialog focus is GTK-managed.",
+            modal=True,
+        ).show(window)
         pump_events()
         # Stress: repeated page changes must not drop sidebar focusability.
         for _cycle in range(3):
@@ -1467,11 +1597,11 @@ def verify_gtk_application(identity: dict[str, str], pages: list) -> None:
             window.sidebar.select_row(row)
             pump_events()
             visible = window.stack.get_visible_child_name()
-            if visible != pages[index].title:
+            if visible != pages[index].id:
                 fail(f"navigation to {pages[index].title!r} showed {visible!r}")
             ok(f"navigated to {pages[index].title}")
 
-        from amonite_welcome import autostart as autostart_mod
+        from amonite_welcome.services import autostart as autostart_mod
 
         override = autostart_mod.override_path()
         prior_enabled = autostart_mod.is_enabled()
@@ -1556,6 +1686,8 @@ def main() -> int:
     verify_action_visibility()
     verify_capabilities_diagnostic()
     verify_capability_launchability()
+    verify_theme_palette()
+    verify_theme_sources()
     verify_desktop_files(identity)
     verify_icons()
     verify_gtk_application(identity, pages)

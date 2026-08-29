@@ -17,6 +17,7 @@ dialogs:
 
 facts:
   distribution: Distribuição
+  edition: Edição
   debian_version: Versão do Debian
   desktop: Ambiente de trabalho
   session_type: Tipo de sessão
@@ -36,6 +37,11 @@ capabilities:
     unavailable: >
       As definições de rede não estão disponíveis.
       Configure a rede com as ferramentas de rede do ambiente de trabalho,
+      ou contacte o administrador.
+  software-install:
+    unavailable: >
+      Não há um instalador de software disponível.
+      Instale aplicações com as ferramentas de pacotes do sistema,
       ou contacte o administrador.
   system-update:
     unavailable: |

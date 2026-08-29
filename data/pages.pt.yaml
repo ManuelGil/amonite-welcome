@@ -2,23 +2,36 @@
 
 pages:
 
-  - title: Boas-vindas
-    icon: go-home-symbolic
+  - id: welcome
+    title: Boas-vindas
     description: >-
       Uma introdução ao $distro_name e ao que esperar deste sistema.
     sections:
       - heading: $slogan
         body: >
-          $distro_name é um sistema operativo de ambiente de trabalho baseado
-          no Debian Stable. O Debian Stable muda lentamente e fornece pacotes
-          que foram testados em conjunto. A instalação permanece minimalista
-          para que possa adicionar o que precisar.
+          $distro_name é um sistema operativo de ambiente de trabalho
+          construído sobre o Debian Stable. O Debian fornece a base, que muda
+          lentamente e é testada em conjunto, e $distro_name fornece as
+          predefinições que assentam nela. Uma predefinição merece o seu lugar
+          se lhe der uma capacidade clara, e o que é útil no primeiro dia não
+          deve tornar-se um obstáculo um mês depois.
+      - heading: Esta edição
+        requires: [edition_name]
+        body: >
+          Esta instalação é a edição $edition_name. As edições distinguem-se
+          pela experiência que procuram, não pela filosofia nem pela
+          arquitetura, por isso o que lê aqui aplica-se também às outras.
       - heading: O ambiente de trabalho
         requires: [desktop_env_label]
         body: >
           Esta instalação usa o $desktop_env_label como ambiente de trabalho.
           Mantém-se fácil de compreender e de ajustar, e é a parte do sistema
           que verá e alterará com mais frequência.
+      - heading: Predefinições que pode alterar
+        body: >
+          Cada predefinição é um ponto de partida, não uma restrição. Pode
+          substituir qualquer uma mais tarde sem lutar contra o sistema, e
+          quem está ao teclado continua a decidir o que o computador faz.
       - heading: Para que serve este manual
         body: >
           Esta janela é uma introdução breve, não um painel de controlo.
@@ -28,8 +41,8 @@ pages:
           Quando outra ferramenta já trata de uma tarefa, este manual aponta
           para essa ferramenta.
 
-  - title: Primeiros passos
-    icon: task-due-symbolic
+  - id: first-steps
+    title: Primeiros passos
     description: Passos recomendados para as primeiras horas após a instalação.
     sections:
       - heading: Ligar à Internet
@@ -41,24 +54,39 @@ pages:
       - heading: Atualizar o sistema
         body: >
           Uma instalação nova pode não incluir as últimas atualizações de
-          software. Recomenda-se instalar as atualizações antes de adicionar
-          outro software ou copiar dados pessoais para o computador. Use
-          Atualizar o sistema abaixo.
+          software. Instale-as antes de adicionar outro software ou copiar
+          dados pessoais para o computador. Manter o sistema atualizado é o
+          que o conserva estável, compatível e seguro. Use Atualizar o sistema
+          abaixo.
       - heading: Instalar software
         body: >
           O sistema base permanece pequeno até que escolha o contrário. As
           aplicações adicionais vêm das mesmas fontes de software de confiança
-          que as atualizações e são instaladas com as ferramentas de pacotes
-          padrão do sistema. Abra a documentação abaixo para saber como.
+          que as atualizações. Abra Software abaixo para as instalar e para
+          aplicar as definições que um pacote sozinho não configura.
+      - heading: Descobrir as aplicações incluídas
+        body: >
+          O menu de aplicações lista os programas incluídos com esta
+          instalação. Explore-o para ver o que já está disponível.
+      - heading: Torná-lo seu
+        body: >
+          Com o sistema já atualizado, este é o momento de configurar
+          impressoras e outros periféricos, ligar as suas contas online,
+          ajustar o aspeto do ambiente de trabalho, ativar as funções de
+          acessibilidade de que precisa e substituir qualquer predefinição que
+          não sirva a sua forma de trabalhar.
+      - heading: Manter o sistema seguro
+        body: >
+          Instale as atualizações com regularidade e instale software apenas a
+          partir de fontes de confiança: as não oficiais acrescentam trabalho
+          de manutenção e de segurança que fica do seu lado. Guarde cópias de
+          segurança de tudo o que não queira perder e consulte a documentação
+          antes de ativar uma fonte de software adicional.
       - heading: Ler a documentação
         body: >
           Este manual é apenas um ponto de partida. As notas de lançamento e
           os guias mais longos estão no site do projeto. Abra Documentação
           abaixo quando precisar de mais pormenor.
-      - heading: Descobrir as aplicações incluídas
-        body: >
-          O menu de aplicações lista os programas incluídos com esta
-          instalação. Explore-o para ver o que já está disponível.
     actions:
       - label: Ligação de rede
         description: Configurar o acesso à rede com fios ou sem fios.
@@ -66,21 +94,25 @@ pages:
       - label: Atualizar o sistema
         description: Instalar atualizações de software da distribuição.
         command: system-update
+        primary: true
+      - label: Software
+        description: Instalar aplicações e aplicar as definições que as acompanham.
+        command: software-install
       - label: Documentação
         description: Abrir notas de lançamento e guias no site do projeto.
         url: $website_url
 
-  - title: O seu sistema
-    icon: preferences-system-symbolic
+  - id: system
+    title: O seu sistema
     description: Informação sobre esta instalação e este computador.
     sections:
       - heading: Sobre estes detalhes
         body: >
           Os valores abaixo descrevem esta instalação e este computador tal
           como estavam quando abriu esta janela. São úteis quando consulta
-          documentação ou pede ajuda. Não são atualizados em tempo real.
-          Reabra esta aplicação se precisar de valores atuais após uma
-          alteração.
+          documentação e são o que deve incluir ao comunicar um problema. Não
+          são atualizados em tempo real. Reabra esta aplicação se precisar de
+          valores atuais após uma alteração.
       - heading: Esta instalação
         data: os_facts
       - heading: Este computador
@@ -90,8 +122,8 @@ pages:
         description: Abrir as definições do ambiente de trabalho para ecrã, aparência e sessão.
         command: desktop-settings
 
-  - title: Ajuda
-    icon: help-browser-symbolic
+  - id: help
+    title: Ajuda
     description: Documentação e locais onde obter suporte.
     sections:
       - heading: Documentação
@@ -104,6 +136,11 @@ pages:
           Questões sobre instalação, software e o ambiente de trabalho
           podem ser levadas ao ponto de suporte que esta instalação
           publica. Abra-o quando precisar de ajuda para além deste manual.
+      - heading: Comunicar um problema
+        body: >
+          Um relato útil diz que edição e que versão de $distro_name está a
+          usar, o equipamento ou a máquina virtual onde corre e o passo que
+          falhou. O seu sistema mostra quase todos esses valores.
     actions:
       - label: Documentação
         description: Notas de lançamento e guias no site do projeto.

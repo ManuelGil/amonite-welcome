@@ -2,23 +2,36 @@
 
 pages:
 
-  - title: Welkom
-    icon: go-home-symbolic
+  - id: welcome
+    title: Welkom
     description: >-
       Een introductie tot $distro_name en wat u van dit systeem kunt verwachten.
     sections:
       - heading: $slogan
         body: >
-          $distro_name is een desktopbesturingssysteem gebaseerd op Debian
-          Stable. Debian Stable verandert langzaam en levert pakketten die
-          samen zijn getest. De installatie blijft minimaal, zodat u kunt
-          toevoegen wat u nodig hebt.
+          $distro_name is een desktopbesturingssysteem dat op Debian Stable is
+          gebouwd. Debian levert de basis, die langzaam verandert en als
+          geheel getest is, en $distro_name levert de standaardkeuzes
+          daarbovenop. Een standaardkeuze verdient haar plaats als ze u een
+          duidelijke mogelijkheid geeft, en wat op de eerste dag nuttig is,
+          mag een maand later geen belemmering worden.
+      - heading: Deze editie
+        requires: [edition_name]
+        body: >
+          Deze installatie is de editie $edition_name. Edities verschillen in
+          de ervaring die ze nastreven, niet in filosofie of architectuur, dus
+          wat u hier leest geldt ook voor de andere.
       - heading: De desktopomgeving
         requires: [desktop_env_label]
         body: >
           Deze installatie gebruikt $desktop_env_label als desktopomgeving.
           Die blijft eenvoudig te begrijpen en aan te passen en is het deel
           van het systeem dat u het vaakst ziet en wijzigt.
+      - heading: Standaardkeuzes die u kunt wijzigen
+        body: >
+          Elke standaardkeuze is een startpunt, geen beperking. U kunt er
+          later een vervangen zonder tegen het systeem in te werken, en wie
+          achter het toetsenbord zit, bepaalt wat de computer doet.
       - heading: Waar dit handboek voor is
         body: >
           Dit venster is een korte introductie, geen bedieningspaneel. Het
@@ -28,8 +41,8 @@ pages:
           hulpmiddel een taak al afhandelt, verwijst dit handboek u naar dat
           hulpmiddel.
 
-  - title: Eerste stappen
-    icon: task-due-symbolic
+  - id: first-steps
+    title: Eerste stappen
     description: Aanbevolen stappen voor de eerste uren na installatie.
     sections:
       - heading: Verbinden met internet
@@ -41,24 +54,39 @@ pages:
       - heading: Het systeem bijwerken
         body: >
           Een nieuwe installatie bevat mogelijk niet de nieuwste
-          software-updates. Het wordt aanbevolen om updates te installeren
-          voordat u andere software toevoegt of persoonlijke gegevens naar de
-          computer kopieert. Gebruik hieronder Systeem bijwerken.
+          software-updates. Installeer die voordat u andere software toevoegt
+          of persoonlijke gegevens naar de computer kopieert. Bijgewerkt
+          blijven is wat het systeem stabiel, compatibel en veilig houdt.
+          Gebruik hieronder Systeem bijwerken.
       - heading: Software installeren
         body: >
           Het basissysteem blijft klein totdat u anders beslist. Aanvullende
           toepassingen komen uit dezelfde vertrouwde softwarebronnen als de
-          updates en worden geïnstalleerd met de standaardpakkethulpmiddelen
-          van het systeem. Open hieronder de documentatie om te zien hoe.
+          updates. Open hieronder Software om ze te installeren en om de
+          instellingen toe te passen die een pakket alleen niet regelt.
+      - heading: Meegeleverde toepassingen ontdekken
+        body: >
+          Het toepassingenmenu toont de programma's die bij deze installatie
+          horen. Blader erdoorheen om te zien wat al beschikbaar is.
+      - heading: Maak het van uzelf
+        body: >
+          Zodra het systeem bijgewerkt is, is dit het moment om printers en
+          andere randapparatuur in te stellen, uw online accounts te
+          verbinden, het uiterlijk van de desktop aan te passen, de
+          toegankelijkheidsfuncties in te schakelen die u nodig hebt en elke
+          standaardkeuze te vervangen die niet bij uw manier van werken past.
+      - heading: Het systeem veilig houden
+        body: >
+          Installeer updates regelmatig en installeer software alleen uit
+          vertrouwde bronnen: onofficiële bronnen brengen onderhouds- en
+          beveiligingswerk mee dat bij u terechtkomt. Bewaar reservekopieën
+          van alles wat u niet wilt verliezen en raadpleeg de documentatie
+          voordat u een extra softwarebron inschakelt.
       - heading: De documentatie lezen
         body: >
           Dit handboek is slechts een startpunt. Uitgavenotities en langere
           handleidingen staan op de projectwebsite. Open hieronder
           Documentatie wanneer u meer detail nodig hebt.
-      - heading: Meegeleverde toepassingen ontdekken
-        body: >
-          Het toepassingenmenu toont de programma's die bij deze installatie
-          horen. Blader erdoorheen om te zien wat al beschikbaar is.
     actions:
       - label: Netwerkverbindingen
         description: Bedrade of draadloze netwerktoegang configureren.
@@ -66,21 +94,26 @@ pages:
       - label: Systeem bijwerken
         description: Software-updates van de distributie installeren.
         command: system-update
+        primary: true
+      - label: Software
+        description: Toepassingen installeren en de bijbehorende instellingen toepassen.
+        command: software-install
       - label: Documentatie
         description: Uitgavenotities en handleidingen op de projectwebsite openen.
         url: $website_url
 
-  - title: Uw systeem
-    icon: preferences-system-symbolic
+  - id: system
+    title: Uw systeem
     description: Informatie over deze installatie en deze computer.
     sections:
       - heading: Over deze gegevens
         body: >
           De waarden hieronder beschrijven deze installatie en computer zoals
           ze waren toen u dit venster opende. Ze zijn nuttig wanneer u
-          documentatie opzoekt of om hulp vraagt. Ze worden niet live
-          bijgewerkt. Open deze toepassing opnieuw als u na een wijziging
-          actuele waarden nodig hebt.
+          documentatie opzoekt en het zijn de gegevens die in een
+          probleemmelding horen. Ze worden niet live bijgewerkt. Open deze
+          toepassing opnieuw als u na een wijziging actuele waarden nodig
+          hebt.
       - heading: Deze installatie
         data: os_facts
       - heading: Deze computer
@@ -90,8 +123,8 @@ pages:
         description: Desktopinstellingen openen voor beeldscherm, weergave en sessie.
         command: desktop-settings
 
-  - title: Help
-    icon: help-browser-symbolic
+  - id: help
+    title: Help
     description: Documentatie en plekken om ondersteuning te krijgen.
     sections:
       - heading: Documentatie
@@ -104,6 +137,12 @@ pages:
           Vragen over installatie, software en de desktop kunt u richten
           aan het ondersteuningspunt dat deze installatie publiceert.
           Open het wanneer u hulp nodig hebt buiten dit handboek.
+      - heading: Een probleem melden
+        body: >
+          Een bruikbare melding vermeldt welke editie en versie van
+          $distro_name u gebruikt, de hardware of virtuele machine waarop het
+          draait, en de stap die misging. Uw systeem toont de meeste van die
+          waarden.
     actions:
       - label: Documentatie
         description: Uitgavenotities en handleidingen op de projectwebsite.

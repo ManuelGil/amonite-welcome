@@ -17,6 +17,7 @@ dialogs:
 
 facts:
   distribution: Distribution
+  edition: Edition
   debian_version: Debian-Version
   desktop: Desktop
   session_type: Sitzungstyp
@@ -36,6 +37,11 @@ capabilities:
     unavailable: >
       Die Netzwerkeinstellungen sind nicht verfügbar.
       Richten Sie das Netzwerk mit den Netzwerkwerkzeugen des Desktops ein
+      oder wenden Sie sich an Ihren Administrator.
+  software-install:
+    unavailable: >
+      Es ist kein Installationsprogramm für Software verfügbar.
+      Installieren Sie Anwendungen mit den Paketwerkzeugen des Systems
       oder wenden Sie sich an Ihren Administrator.
   system-update:
     unavailable: |

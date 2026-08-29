@@ -22,7 +22,7 @@ cd "$ROOT"
 export PATH="/usr/bin:/bin${PATH:+:$PATH}"
 export PYTHONNOUSERSITE=1
 
-BUILDDIR="$ROOT/builddir"
+BUILDDIR="$ROOT/builddir/amonite-welcome"
 PACKAGE_ROOT="$ROOT/package-root"
 DIST="$ROOT/dist"
 PARENT="$(cd "$ROOT/.." && pwd)"
@@ -456,7 +456,7 @@ ownership_candidates() {
 }
 
 check_removable_ownership() {
-  local path owner uid me_uid me_user me_group
+  local path owner me_uid me_user me_group
   local bad=()
   me_uid="$(id -u)"
   me_user="$(id -un)"
@@ -714,7 +714,7 @@ cmd_validate() {
 # --- Build stages -----------------------------------------------------------
 
 cmd_configure() {
-  section "configure - meson setup builddir"
+  section "configure - meson setup builddir/amonite-welcome"
   require_cmd meson
   require_cmd pkg-config
   if [ -f "$BUILDDIR/build.ninja" ]; then
@@ -1290,7 +1290,7 @@ Commands:
   status       Show repository / build / package state (read-only)
   clean        Remove builddir, package-root, obj-*, debian leftovers
   distclean    clean + remove dist/ artifacts and leftover .deb metadata
-  configure    meson setup builddir
+  configure    meson setup builddir/amonite-welcome
   build        meson compile (auto-configures if needed)
   test         meson test (auto-builds if needed)
   install      DESTDIR=package-root meson install (auto-builds if needed)

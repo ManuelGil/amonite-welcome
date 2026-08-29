@@ -66,12 +66,27 @@ capabilities:
       # session from independent components ship no settings program, and the
       # capability is then reported as unavailable rather than answered with a
       # foreign desktop's tool.
+      #
+      # More than one name is listed because different editions install
+      # different settings programs, not because a system may have several: an
+      # edition installs at most one of these, so the order below never decides
+      # anything on a real system and is not a preference.
       - xfce4-settings-manager
+      - systemsettings
 
   network-settings:
     kind: application
     providers:
       - nm-connection-editor
+
+  software-install:
+    kind: application
+    providers:
+      # The application this system installs alongside Welcome to install
+      # software and apply the settings a package alone does not know about.
+      # Absent from a system that installs Welcome on its own, and the
+      # capability is then reported as unavailable.
+      - amonite-center
 
   system-update:
     kind: terminal-command

@@ -2,23 +2,38 @@
 
 pages:
 
-  - title: Bienvenida
-    icon: go-home-symbolic
+  - id: welcome
+    title: Bienvenida
     description: >-
       Introducción a $distro_name y qué esperar de este sistema.
     sections:
       - heading: $slogan
         body: >
-          $distro_name es un sistema operativo de escritorio basado en Debian
-          Stable. Debian Stable cambia con lentitud y ofrece paquetes que
-          fueron probados en conjunto. La instalación se mantiene mínima para
-          que puedas añadir lo que necesites.
+          $distro_name es un sistema operativo de escritorio construido sobre
+          Debian Stable. Debian aporta la base, que cambia con lentitud y se
+          prueba en conjunto, y $distro_name aporta los valores por defecto
+          que se apoyan en ella. Un valor por defecto se gana su sitio si te
+          da una capacidad clara, y lo que resulta útil el primer día no
+          debería convertirse en un estorbo un mes después.
+      - heading: Esta edición
+        requires: [edition_name]
+        body: >
+          Esta instalación es la edición $edition_name. Las ediciones se
+          diferencian por la experiencia que buscan, no por su filosofía ni
+          por su arquitectura, así que lo que leas aquí vale también para las
+          demás.
       - heading: El escritorio
         requires: [desktop_env_label]
         body: >
           Esta instalación usa $desktop_env_label como entorno de escritorio.
           Se mantiene fácil de entender y de ajustar, y es la parte del
           sistema que verás y cambiarás con más frecuencia.
+      - heading: Valores por defecto que puedes cambiar
+        body: >
+          Cada valor por defecto es un punto de partida, no una restricción.
+          Puedes sustituir cualquiera más adelante sin pelearte con el
+          sistema, y quien está al teclado sigue decidiendo qué hace el
+          ordenador.
       - heading: Para qué sirve este manual
         body: >
           Esta ventana es una breve introducción, no un panel de control.
@@ -27,8 +42,8 @@ pages:
           configuración del escritorio ni el gestor de paquetes. Cuando otra
           herramienta ya cubre una tarea, este manual te dirige a ella.
 
-  - title: Primeros pasos
-    icon: task-due-symbolic
+  - id: first-steps
+    title: Primeros pasos
     description: Pasos recomendados para las primeras horas tras la instalación.
     sections:
       - heading: Conéctate a Internet
@@ -40,25 +55,40 @@ pages:
       - heading: Actualiza el sistema
         body: >
           Una instalación nueva puede no incluir las últimas actualizaciones
-          de software. Se recomienda instalar las actualizaciones antes de
-          añadir otro software o copiar datos personales al equipo. Usa
-          Actualizar el sistema más abajo.
+          de software. Instálalas antes de añadir otro software o copiar datos
+          personales al equipo. Mantener el sistema al día es lo que lo
+          conserva estable, compatible y seguro. Usa Actualizar el sistema más
+          abajo.
       - heading: Instala software
         body: >
           El sistema base se mantiene pequeño hasta que decidas lo contrario.
           Las aplicaciones adicionales provienen de las mismas fuentes de
-          software de confianza que las actualizaciones y se instalan con las
-          herramientas de paquetes estándar del sistema. Abre la documentación
-          más abajo para saber cómo.
+          software de confianza que las actualizaciones. Abre Software más
+          abajo para instalarlas y aplicar los ajustes que un paquete por sí
+          solo no configura.
+      - heading: Descubre las aplicaciones incluidas
+        body: >
+          El menú de aplicaciones enumera los programas incluidos con esta
+          instalación. Explóralo para ver qué hay disponible.
+      - heading: Hazlo tuyo
+        body: >
+          Con el sistema ya actualizado, este es el momento de configurar
+          impresoras y otros periféricos, conectar tus cuentas en línea,
+          ajustar la apariencia del escritorio, activar las funciones de
+          accesibilidad que necesites y sustituir cualquier valor por defecto
+          que no encaje con tu forma de trabajar.
+      - heading: Mantén el sistema seguro
+        body: >
+          Instala las actualizaciones con regularidad e instala software solo
+          desde fuentes de confianza: las no oficiales añaden un trabajo de
+          mantenimiento y de seguridad que recae en ti. Guarda copias de
+          seguridad de todo lo que no quieras perder y consulta la
+          documentación antes de habilitar una fuente de software adicional.
       - heading: Lee la documentación
         body: >
           Este manual es solo un punto de partida. Las notas de la versión y
           las guías más largas están en el sitio del proyecto. Abre
           Documentación más abajo cuando necesites más detalle.
-      - heading: Descubre las aplicaciones incluidas
-        body: >
-          El menú de aplicaciones enumera los programas incluidos con esta
-          instalación. Explóralo para ver qué hay disponible.
     actions:
       - label: Conexiones de red
         description: Configura el acceso a la red por cable o inalámbrico.
@@ -66,21 +96,25 @@ pages:
       - label: Actualizar el sistema
         description: Instala actualizaciones de software de la distribución.
         command: system-update
+        primary: true
+      - label: Software
+        description: Instala aplicaciones y aplica los ajustes que las acompañan.
+        command: software-install
       - label: Documentación
         description: Abre notas de la versión y guías en el sitio del proyecto.
         url: $website_url
 
-  - title: Tu sistema
-    icon: preferences-system-symbolic
+  - id: system
+    title: Tu sistema
     description: Información sobre esta instalación y este equipo.
     sections:
       - heading: Sobre estos datos
         body: >
           Los valores siguientes describen esta instalación y este equipo tal
           como estaban al abrir esta ventana. Son útiles al consultar
-          documentación o pedir ayuda. No se actualizan en tiempo real. Vuelve
-          a abrir esta aplicación si necesitas valores actuales después de un
-          cambio.
+          documentación y son lo que conviene incluir al informar de un
+          problema. No se actualizan en tiempo real. Vuelve a abrir esta
+          aplicación si necesitas valores actuales después de un cambio.
       - heading: Esta instalación
         data: os_facts
       - heading: Este equipo
@@ -90,8 +124,8 @@ pages:
         description: Abre la configuración del escritorio para pantalla, apariencia y sesión.
         command: desktop-settings
 
-  - title: Ayuda
-    icon: help-browser-symbolic
+  - id: help
+    title: Ayuda
     description: Documentación y lugares donde obtener soporte.
     sections:
       - heading: Documentación
@@ -104,6 +138,11 @@ pages:
           Las preguntas sobre instalación, software y el escritorio se
           atienden en el punto de soporte que publica esta instalación.
           Ábrelo cuando necesites ayuda más allá de este manual.
+      - heading: Informar de un problema
+        body: >
+          Un informe útil indica qué edición y qué versión de $distro_name
+          usas, el equipo o la máquina virtual donde se ejecuta y el paso que
+          falló. Tu sistema muestra casi todos esos valores.
     actions:
       - label: Documentación
         description: Notas de la versión y guías en el sitio del proyecto.

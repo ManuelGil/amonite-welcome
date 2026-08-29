@@ -12,7 +12,7 @@ Keep these in sync:
 | Location | Field |
 | -------- | ----- |
 | `meson.build` | `project(... version: '…')` |
-| `debian/changelog` | package version (e.g. `amonite-welcome (1.0.0)`) |
+| `debian/changelog` | package version (e.g. `amonite-welcome (2.0.0)`) |
 
 There is no separate application version in identity catalogs. Distribution
 release labels come from `/etc/os-release` on the installed system.
@@ -83,7 +83,7 @@ Complete every item before tagging and handing the `.deb` to ISO integration:
 
 ## What not to release from
 
-- Uncommitted generated files under `builddir/` or `obj-*/`
+- Uncommitted generated files under `builddir/`
 - A tree contaminated by packaging leftovers (`obj-*`, `debian/*.substvars`;
   see `.gitignore`). Prefer `make release`, which starts with
   `distclean`.

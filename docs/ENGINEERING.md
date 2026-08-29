@@ -40,7 +40,7 @@ update packaging literals it reports.
 ## Capability system
 
 Handbook actions name **capabilities** (`command:` in YAML). Providers live in
-`data/providers.yaml`. Runtime `actions.py` is a generic resolver
+`data/providers.yaml`. Runtime `services/providers.py` is a generic resolver
 (`resolve` / `launch` / `available` / `providers` / `known_capabilities`).
 
 Kinds: `application` (first available binary) and `terminal-command` (run
@@ -154,7 +154,7 @@ metadata beside the source tree. **status** never modifies files.
 
 ### Self-preparation and exit codes
 
-Missing `builddir` / `package-root` are prepared by `test`, `install`,
+Missing `builddir/amonite-welcome` / `package-root` are prepared by `test`, `install`,
 `verify`, `health`, and `inspect`. Foreign-owned artefacts block destructive
 commands with exit **2**. Engineering failures exit **1**. Success exits **0**.
 

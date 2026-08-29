@@ -25,7 +25,6 @@ import os
 import shlex
 import shutil
 from collections.abc import Mapping, Sequence
-from dataclasses import dataclass
 from functools import lru_cache
 from pathlib import Path
 from typing import Any
@@ -33,7 +32,7 @@ from typing import Any
 import yaml
 
 _REGISTRY_NAME = "providers.yaml"
-from amonite_welcome import strings as i18n
+from amonite_welcome.services import catalog as i18n
 
 _DEFAULT_UNAVAILABLE = "This action is not available on this system."
 
@@ -137,20 +136,13 @@ def _find_registry_path() -> Path:
         if path.is_file():
             return path
 
-    # Installed layout: <pkgdatadir>/amonite_welcome/actions.py
-    installed = Path(__file__).resolve().parent.parent / _REGISTRY_NAME
-    if installed.is_file():
-        return installed
-
-    # Uninstalled Meson tree: builddir/data next to builddir/amonite_welcome
-    build_data = Path(__file__).resolve().parent.parent / "data" / _REGISTRY_NAME
-    if build_data.is_file():
-        return build_data
-
-    # Source checkout during tests: repo/data/providers.yaml
-    source = Path(__file__).resolve().parents[1] / "data" / _REGISTRY_NAME
-    if source.is_file():
-        return source
+    # <root> is the package data directory: the installed tree keeps
+    # amonite_welcome/ inside it, and the Meson build tree and the source
+    # checkout both keep data/ beside it.
+    root = Path(__file__).resolve().parents[2]
+    for candidate in (root / _REGISTRY_NAME, root / "data" / _REGISTRY_NAME):
+        if candidate.is_file():
+            return candidate
 
     raise RegistryError(
         f"capability registry not found ({_REGISTRY_NAME}); "

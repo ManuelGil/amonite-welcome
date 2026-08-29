@@ -17,6 +17,7 @@ dialogs:
 
 facts:
   distribution: Distributie
+  edition: Editie
   debian_version: Debian-versie
   desktop: Bureaublad
   session_type: Sessietype
@@ -36,6 +37,11 @@ capabilities:
     unavailable: >
       Netwerkinstellingen zijn niet beschikbaar.
       Configureer het netwerk met de netwerkhulpmiddelen van het bureaublad,
+      of vraag het aan uw beheerder.
+  software-install:
+    unavailable: >
+      Er is geen installatieprogramma voor software beschikbaar.
+      Installeer toepassingen met de pakkethulpmiddelen van het systeem,
       of vraag het aan uw beheerder.
   system-update:
     unavailable: |

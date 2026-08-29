@@ -2,23 +2,38 @@
 
 pages:
 
-  - title: Bienvenue
-    icon: go-home-symbolic
+  - id: welcome
+    title: Bienvenue
     description: >-
       Une introduction à $distro_name et à ce que vous pouvez attendre de ce système.
     sections:
       - heading: $slogan
         body: >
-          $distro_name est un système d'exploitation de bureau basé sur Debian
-          Stable. Debian Stable évolue lentement et fournit des paquets testés
-          ensemble. L'installation reste minimale afin que vous puissiez
-          ajouter ce dont vous avez besoin.
+          $distro_name est un système d'exploitation de bureau construit sur
+          Debian Stable. Debian fournit la base, qui évolue lentement et est
+          testée dans son ensemble, et $distro_name fournit les choix par
+          défaut qui s'appuient dessus. Un choix par défaut mérite sa place
+          s'il vous apporte une capacité claire, et ce qui est utile le
+          premier jour ne devrait pas devenir une gêne un mois plus tard.
+      - heading: Cette édition
+        requires: [edition_name]
+        body: >
+          Cette installation est l'édition $edition_name. Les éditions se
+          distinguent par l'expérience qu'elles visent, non par leur
+          philosophie ni par leur architecture, si bien que ce que vous lisez
+          ici vaut aussi pour les autres.
       - heading: Le bureau
         requires: [desktop_env_label]
         body: >
           Cette installation utilise $desktop_env_label comme environnement de
           bureau. Il reste facile à comprendre et à ajuster, et c'est la
           partie du système que vous verrez et modifierez le plus souvent.
+      - heading: Des choix par défaut modifiables
+        body: >
+          Chaque choix par défaut est un point de départ, pas une contrainte.
+          Vous pouvez en remplacer un plus tard sans lutter contre le système,
+          et la personne au clavier décide toujours de ce que fait
+          l'ordinateur.
       - heading: À quoi sert ce manuel
         body: >
           Cette fenêtre est une courte introduction, pas un panneau de
@@ -28,8 +43,8 @@ pages:
           ni le gestionnaire de paquets. Lorsqu'un autre outil gère déjà une
           tâche, ce manuel vous y renvoie.
 
-  - title: Premiers pas
-    icon: task-due-symbolic
+  - id: first-steps
+    title: Premiers pas
     description: Étapes recommandées pour les premières heures après l'installation.
     sections:
       - heading: Se connecter à Internet
@@ -41,26 +56,41 @@ pages:
       - heading: Mettre à jour le système
         body: >
           Une nouvelle installation peut ne pas inclure les dernières mises à
-          jour logicielles. Il est recommandé d'installer les mises à jour
-          avant d'ajouter d'autres logiciels ou de copier des données
-          personnelles sur l'ordinateur. Utilisez Mettre à jour le système
-          ci-dessous.
+          jour logicielles. Installez-les avant d'ajouter d'autres logiciels
+          ou de copier des données personnelles sur l'ordinateur. C'est le
+          fait de rester à jour qui garde le système stable, compatible et
+          sûr. Utilisez Mettre à jour le système ci-dessous.
       - heading: Installer des logiciels
         body: >
           Le système de base reste petit jusqu'à ce que vous en décidiez
           autrement. Les applications supplémentaires proviennent des mêmes
-          sources logicielles de confiance que les mises à jour et s'installent
-          avec les outils de paquets standard du système. Ouvrez la
-          documentation ci-dessous pour savoir comment.
+          sources logicielles de confiance que les mises à jour. Ouvrez
+          Logiciels ci-dessous pour les installer et pour appliquer les
+          réglages qu'un paquet seul ne configure pas.
+      - heading: Découvrir les applications incluses
+        body: >
+          Le menu des applications liste les programmes inclus avec cette
+          installation. Parcourez-le pour voir ce qui est déjà disponible.
+      - heading: Faites-en votre système
+        body: >
+          Une fois le système à jour, c'est le moment de configurer les
+          imprimantes et les autres périphériques, de connecter vos comptes
+          en ligne, d'ajuster l'apparence du bureau, d'activer les fonctions
+          d'accessibilité dont vous avez besoin et de remplacer tout choix par
+          défaut qui ne correspond pas à votre façon de travailler.
+      - heading: Garder le système sûr
+        body: >
+          Installez les mises à jour régulièrement et n'installez de logiciels
+          que depuis des sources de confiance : les sources non officielles
+          ajoutent un travail de maintenance et de sécurité qui vous revient.
+          Conservez des sauvegardes de tout ce que vous ne voulez pas perdre
+          et consultez la documentation avant d'activer une source logicielle
+          supplémentaire.
       - heading: Lire la documentation
         body: >
           Ce manuel n'est qu'un point de départ. Les notes de version et les
           guides plus longs sont sur le site du projet. Ouvrez Documentation
           ci-dessous lorsque vous avez besoin de plus de détails.
-      - heading: Découvrir les applications incluses
-        body: >
-          Le menu des applications liste les programmes inclus avec cette
-          installation. Parcourez-le pour voir ce qui est déjà disponible.
     actions:
       - label: Connexions réseau
         description: Configurer l'accès réseau filaire ou sans fil.
@@ -68,12 +98,16 @@ pages:
       - label: Mettre à jour le système
         description: Installer les mises à jour logicielles de la distribution.
         command: system-update
+        primary: true
+      - label: Logiciels
+        description: Installer des applications et appliquer les réglages qui les accompagnent.
+        command: software-install
       - label: Documentation
         description: Ouvrir les notes de version et les guides sur le site du projet.
         url: $website_url
 
-  - title: Votre système
-    icon: preferences-system-symbolic
+  - id: system
+    title: Votre système
     description: Informations sur cette installation et cet ordinateur.
     sections:
       - heading: À propos de ces détails
@@ -81,9 +115,9 @@ pages:
           Les valeurs ci-dessous décrivent cette installation et cet
           ordinateur tels qu'ils étaient lorsque vous avez ouvert cette
           fenêtre. Elles sont utiles lorsque vous consultez la documentation
-          ou demandez de l'aide. Elles ne sont pas mises à jour en direct.
-          Rouvrez cette application si vous avez besoin de valeurs actuelles
-          après une modification.
+          et ce sont elles qu'il faut joindre à un signalement. Elles ne sont
+          pas mises à jour en direct. Rouvrez cette application si vous avez
+          besoin de valeurs actuelles après une modification.
       - heading: Cette installation
         data: os_facts
       - heading: Cet ordinateur
@@ -93,8 +127,8 @@ pages:
         description: Ouvrir les paramètres du bureau pour l'affichage, l'apparence et la session.
         command: desktop-settings
 
-  - title: Aide
-    icon: help-browser-symbolic
+  - id: help
+    title: Aide
     description: Documentation et lieux où obtenir de l'aide.
     sections:
       - heading: Documentation
@@ -108,6 +142,12 @@ pages:
           peuvent être adressées au point d'assistance publié par cette
           installation. Ouvrez-le lorsque vous avez besoin d'aide au-delà
           de ce manuel.
+      - heading: Signaler un problème
+        body: >
+          Un signalement utile indique quelle édition et quelle version de
+          $distro_name vous utilisez, le matériel ou la machine virtuelle sur
+          laquelle il tourne, et l'étape qui a échoué. Votre système affiche
+          la plupart de ces valeurs.
     actions:
       - label: Documentation
         description: Notes de version et guides sur le site du projet.
